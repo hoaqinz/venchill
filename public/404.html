@@ -4,12 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>VenChill - Trang web xem phim trực tuyến</title>
-  <meta name="description" content="VenChill - Trang web xem phim trực tuyến miễn phí với nhiều thể loại phim hấp dẫn.">
-  <meta property="og:title" content="VenChill - Trang web xem phim trực tuyến">
-  <meta property="og:description" content="VenChill - Trang web xem phim trực tuyến miễn phí với nhiều thể loại phim hấp dẫn.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://venchill.pages.dev">
+  <title>Không tìm thấy trang - VenChill</title>
+  <meta name="description" content="Trang bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.">
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -32,21 +28,14 @@
     .logo span:first-child {
       color: #e50914;
     }
+    .title {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
     .message {
       font-size: 1.2rem;
       margin-bottom: 30px;
       max-width: 600px;
-    }
-    .loading {
-      width: 50px;
-      height: 50px;
-      border: 5px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top-color: #e50914;
-      animation: spin 1s ease-in-out infinite;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
     }
     .button {
       display: inline-block;
@@ -56,7 +45,6 @@
       border-radius: 4px;
       text-decoration: none;
       font-weight: bold;
-      margin-top: 20px;
       transition: background-color 0.3s;
     }
     .button:hover {
@@ -66,14 +54,8 @@
 </head>
 <body>
   <div class="logo"><span>Ven</span><span>Chill</span></div>
-  <div class="message">Đang tải trang web xem phim VenChill. Vui lòng đợi trong giây lát...</div>
-  <div class="loading"></div>
-  <a href="/" class="button">Vào trang chủ</a>
-  <script>
-    // Redirect to the home page after a short delay
-    setTimeout(function() {
-      window.location.href = '/';
-    }, 3000);
-  </script>
+  <h1 class="title">404 - Không tìm thấy trang</h1>
+  <div class="message">Trang bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.</div>
+  <a href="/" class="button">Quay lại trang chủ</a>
 </body>
 </html>

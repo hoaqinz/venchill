@@ -1,8 +1,5 @@
 # Cấu hình headers cho tất cả các trang
 /*
-  # Content-Type
-  Content-Type: text/html; charset=UTF-8
-
   # Bảo mật
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff

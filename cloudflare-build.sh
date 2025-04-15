@@ -18,9 +18,11 @@ rm -rf .cache
 # Tối ưu hóa kích thước file
 find out -type f -size +20M -delete
 
-# Sao chép file _redirects và _headers vào thư mục out
+# Sao chép các file cần thiết vào thư mục out
 cp public/_redirects out/
 cp public/_headers out/
+cp public/404.html out/
+cp public/_worker.js out/
 
 # Hiển thị thông tin về kích thước file
 echo "Các file lớn nhất:"

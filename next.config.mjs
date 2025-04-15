@@ -12,10 +12,11 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
-  // Sử dụng output: 'export' để tạo các file tĩnh
+  // Cấu hình cho Cloudflare Pages
   output: 'export',
   distDir: 'out',
   trailingSlash: true,
+  assetPrefix: '/',
 
   // Tắt tạo image tự động
   images: {
