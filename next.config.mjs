@@ -29,8 +29,45 @@ const nextConfig = {
     config.optimization.splitChunks = {
       chunks: 'all',
       maxInitialRequests: 25,
-      minSize: 20000,
+      minSize: 5000,
       maxSize: 20 * 1024 * 1024, // 20MB
+      cacheGroups: {
+        default: false,
+        vendors: false,
+        framework: {
+          name: 'framework',
+          test: /[\\/]node_modules[\\/](@next\/react|react|react-dom|scheduler)[\\/]/,
+          priority: 40,
+          enforce: true,
+        },
+        lib: {
+          test: /[\\/]node_modules[\\/]/,
+          name(module) {
+            const packageName = module.context.match(/[\\/]node_modules[\\/](.+?)(?:[\\/]|$)/)[1];
+            return `npm.${packageName.replace('@', '')}`;
+          },
+          priority: 30,
+          minSize: 5000,
+          maxSize: 20 * 1024 * 1024, // 20MB
+        },
+        commons: {
+          name: 'commons',
+          minChunks: 2,
+          priority: 20,
+        },
+        shared: {
+          name: 'shared',
+          minChunks: 2,
+          priority: 10,
+          reuseExistingChunk: true,
+          enforce: true,
+        },
+      },
+    };
+
+    // Bỏ qua thư mục cache
+    config.watchOptions = {
+      ignored: ['**/.git/**', '**/node_modules/**', '**/.next/cache/**', '**/cache/**'],
     };
 
     return config;
