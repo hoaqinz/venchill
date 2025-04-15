@@ -1,0 +1,30 @@
+# Cấu hình headers cho tất cả các trang
+/*
+  # Bảo mật
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  
+  # Tối ưu hóa
+  Cache-Control: public, max-age=3600
+  
+  # CORS
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, OPTIONS
+  Access-Control-Allow-Headers: Content-Type
+
+# Tối ưu hóa cho tài nguyên tĩnh
+/images/*
+  Cache-Control: public, max-age=604800, immutable
+
+# Tối ưu hóa cho video
+*.m3u8
+  Content-Type: application/vnd.apple.mpegurl
+  Cache-Control: public, max-age=1
+  Access-Control-Allow-Origin: *
+
+*.ts
+  Content-Type: video/mp2t
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *

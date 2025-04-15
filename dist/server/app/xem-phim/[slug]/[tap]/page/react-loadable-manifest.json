@@ -1,0 +1,18 @@
+{
+  "[project]/node_modules/react-player/lazy/index.js [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/node_modules/react-player/lazy/index.js [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/node_modules_react-player_lazy_669035ee._.js",
+      "static/chunks/node_modules_9f0967f2._.js",
+      "static/chunks/node_modules_react-player_lazy_index_12831017.js"
+    ]
+  },
+  "[project]/node_modules/hls.js/dist/hls.mjs [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/node_modules/hls.js/dist/hls.mjs [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/node_modules_hls_js_dist_hls_mjs_c5cd88ae._.js",
+      "static/chunks/node_modules_hls_js_dist_hls_mjs_2c1ba58c._.js",
+      "static/chunks/node_modules_hls_js_dist_hls_mjs_12831017._.js"
+    ]
+  }
+}
