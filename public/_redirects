@@ -1,6 +1,30 @@
 # Redirects for Cloudflare Pages
-/*    /index.html   200
-/api/*  /api/:splat  200
-/assets/*  /assets/:splat  200
-/images/*  /images/:splat  200
-/_next/*  /_next/:splat  200
+
+# Xử lý các route động
+/phim/*      /index.html   200
+/xem-phim/*  /index.html   200
+/the-loai/*  /index.html   200
+/quoc-gia/*  /index.html   200
+/danh-sach/* /index.html   200
+/tim-kiem    /index.html   200
+
+# Xử lý các route tĩnh
+/           /index.html   200
+/api/*      /api/:splat    200
+/assets/*   /assets/:splat 200
+/images/*   /images/:splat 200
+/_next/*    /_next/:splat  200
+
+# Xử lý các file tĩnh
+/*.css      /:splat       200
+/*.js       /:splat       200
+/*.json     /:splat       200
+/*.ico      /:splat       200
+/*.png      /:splat       200
+/*.jpg      /:splat       200
+/*.gif      /:splat       200
+/*.svg      /:splat       200
+/*.webp     /:splat       200
+
+# Fallback cho các route khác
+/*          /index.html   200

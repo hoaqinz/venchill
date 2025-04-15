@@ -16,10 +16,11 @@ rm -rf .cache
 # Tối ưu hóa kích thước file
 find .next -type f -size +20M -delete
 
-# Sao chép file _redirects và _headers vào thư mục .next
+# Sao chép file _redirects, _headers và index.html vào thư mục .next
 mkdir -p .next/static
 cp public/_redirects .next/
 cp public/_headers .next/
+cp public/index.html .next/
 
 # Hiển thị thông tin về kích thước file
 echo "Các file lớn nhất:"

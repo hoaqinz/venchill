@@ -1,14 +1,17 @@
 # Cấu hình headers cho tất cả các trang
 /*
+  # Content-Type
+  Content-Type: text/html; charset=UTF-8
+
   # Bảo mật
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
-  
+
   # Tối ưu hóa
   Cache-Control: public, max-age=3600
-  
+
   # CORS
   Access-Control-Allow-Origin: *
   Access-Control-Allow-Methods: GET, OPTIONS
@@ -17,6 +20,22 @@
 # Tối ưu hóa cho tài nguyên tĩnh
 /images/*
   Cache-Control: public, max-age=604800, immutable
+
+# Content-Type cho các file ảnh
+*.jpg
+  Content-Type: image/jpeg
+*.jpeg
+  Content-Type: image/jpeg
+*.png
+  Content-Type: image/png
+*.gif
+  Content-Type: image/gif
+*.svg
+  Content-Type: image/svg+xml
+*.webp
+  Content-Type: image/webp
+*.ico
+  Content-Type: image/x-icon
 
 # Tối ưu hóa cho video
 *.m3u8
