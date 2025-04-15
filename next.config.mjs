@@ -35,7 +35,7 @@ const nextConfig = {
   // Tối ưu tải trang
   experimental: {
     // optimizeCss: true, // Bỏ tùy chọn này vì nó yêu cầu critters
-    optimizePackageImports: ['react-icons'],
+    // optimizePackageImports: ['react-icons'], // Bỏ tùy chọn này vì không dùng react-icons
   },
 };
 
