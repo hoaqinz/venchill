@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "pages:build": "NEXT_TELEMETRY_DISABLED=1 NODE_ENV=production next build",
-    "cloudflare:build": "NEXT_TELEMETRY_DISABLED=1 NODE_ENV=production next build"
+    "cloudflare:build": "NEXT_TELEMETRY_DISABLED=1 NODE_ENV=production next build",
+    "cloudflare:deploy": "npx wrangler pages deploy .next"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.7",

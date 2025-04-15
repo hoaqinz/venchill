@@ -12,8 +12,8 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
-  // Sử dụng output: 'export' để tạo các file tính
-  output: 'export',
+  // Không sử dụng output: 'export' để tránh lỗi với generateStaticParams
+  // output: 'export',
 
   // Tắt tạo image tự động
   images: {
