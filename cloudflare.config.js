@@ -2,8 +2,8 @@
 module.exports = {
   // Build settings
   build: {
-    command: "npm run build",
-    directory: ".next",
+    command: "npm run cloudflare:build",
+    directory: "out",
     environment: {
       NODE_VERSION: "18",
       NEXT_TELEMETRY_DISABLED: "1",

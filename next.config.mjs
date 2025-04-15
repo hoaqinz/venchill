@@ -12,8 +12,9 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
-  // Không sử dụng output: 'export' để tránh lỗi với generateStaticParams
-  // output: 'export',
+  // Sử dụng output: 'export' để tạo các file tính
+  output: 'export',
+  distDir: 'out',
 
   // Tắt tạo image tự động
   images: {
@@ -43,7 +44,9 @@ const nextConfig = {
         lib: {
           test: /[\\/]node_modules[\\/]/,
           name(module) {
-            const packageName = module.context.match(/[\\/]node_modules[\\/](.+?)(?:[\\/]|$)/)[1];
+            if (!module.context) return 'npm.unknown';
+            const match = module.context.match(/[\\/]node_modules[\\/](.+?)(?:[\\/]|$)/);
+            const packageName = match ? match[1] : 'unknown';
             return `npm.${packageName.replace('@', '')}`;
           },
           priority: 30,

@@ -1,2 +1,6 @@
 # Redirects for Cloudflare Pages
-/* /index.html 200
+/*    /index.html   200
+/api/*  /api/:splat  200
+/assets/*  /assets/:splat  200
+/images/*  /images/:splat  200
+/_next/*  /_next/:splat  200
