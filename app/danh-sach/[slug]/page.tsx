@@ -48,9 +48,11 @@ async function getData(slug: string, page: number = 1) {
 }
 
 // Khi sử dụng output: 'export', cần có hàm generateStaticParams
+import { STATIC_LIST_SLUGS } from "@/app/lib/static-params";
+
 export async function generateStaticParams() {
-  // Trả về các slug của danh mục để tạo trước các trang này
-  return Object.keys(CATEGORY_TITLES).map(slug => ({ slug }));
+  // Trả về danh sách các slug của danh mục để tạo trước các trang này
+  return STATIC_LIST_SLUGS.map(slug => ({ slug }));
 }
 
 export async function generateMetadata({ params }: ListPageProps): Promise<Metadata> {

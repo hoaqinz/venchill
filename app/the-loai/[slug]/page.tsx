@@ -44,9 +44,11 @@ async function getCategoryName(slug: string) {
 }
 
 // Khi sử dụng output: 'export', cần có hàm generateStaticParams
+import { STATIC_CATEGORY_SLUGS } from "@/app/lib/static-params";
+
 export async function generateStaticParams() {
-  // Trả về một mảng rỗng vì chúng ta không muốn tạo trước các trang này
-  return [];
+  // Trả về danh sách các slug của thể loại để tạo trước các trang này
+  return STATIC_CATEGORY_SLUGS.map(slug => ({ slug }));
 }
 
 export async function generateMetadata({ params }: GenrePageProps): Promise<Metadata> {

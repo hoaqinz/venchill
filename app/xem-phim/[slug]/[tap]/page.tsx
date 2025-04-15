@@ -23,10 +23,11 @@ async function getData(slug: string) {
 }
 
 // Khi sử dụng output: 'export', cần có hàm generateStaticParams
+import { STATIC_EPISODE_SLUGS } from "@/app/lib/static-params";
+
 export async function generateStaticParams() {
-  // Trả về một mảng rỗng vì chúng ta không muốn tạo trước các trang này
-  // Cloudflare Pages sẽ xử lý các trang này khi có người truy cập
-  return [];
+  // Trả về danh sách các slug và tập của phim để tạo trước các trang này
+  return STATIC_EPISODE_SLUGS;
 }
 
 export async function generateMetadata({ params }: WatchPageProps): Promise<Metadata> {

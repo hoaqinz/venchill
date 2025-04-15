@@ -6,6 +6,7 @@
     "/api/*",
     "/static/*",
     "/images/*",
+    "/assets/*",
     "/*.ico",
     "/*.js",
     "/*.json",
