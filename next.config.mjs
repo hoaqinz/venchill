@@ -12,9 +12,9 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
-  // Sử dụng output: 'export' để tạo các file tính
-  output: 'export',
-  distDir: 'out',
+  // Không sử dụng output: 'export' để tránh lỗi với các trang động
+  // output: 'export',
+  // distDir: 'out',
 
   // Tắt tạo image tự động
   images: {
