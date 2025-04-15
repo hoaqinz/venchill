@@ -1,8 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Tối ưu cho Cloudflare Pages
-  // output: 'export', // Bỏ chế độ này vì nó yêu cầu generateStaticParams
-  distDir: 'dist',
+  // Không cần chỉ định output và distDir khi dùng Cloudflare Pages
 
   // Cấu hình Image Optimization
   images: {

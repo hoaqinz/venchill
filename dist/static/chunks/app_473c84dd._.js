@@ -119,6 +119,7 @@ function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }) {
     const [showSkipIntro, setShowSkipIntro] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [showNextEpisode, setShowNextEpisode] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const playerRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const reactPlayerRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
     const intervalRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
     // Format time in MM:SS
@@ -154,6 +155,19 @@ function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }) {
         const watchKey = getWatchKey();
         if (watchKey) {
             localStorage.setItem(watchKey, INTRO_DURATION.toString());
+        }
+        // Nếu đang phát video, cập nhật vị trí của ReactPlayer
+        if (reactPlayerRef.current) {
+            // Sử dụng seekTo của ReactPlayer
+            reactPlayerRef.current.seekTo(INTRO_DURATION, 'seconds');
+            console.log('Skipped to:', INTRO_DURATION);
+        } else if (playerRef.current) {
+            // Fallback: Tìm ReactPlayer instance
+            const playerInstance = playerRef.current.querySelector('video');
+            if (playerInstance) {
+                playerInstance.currentTime = INTRO_DURATION;
+                console.log('Skipped to (fallback):', INTRO_DURATION);
+            }
         }
     };
     // Chuyển đến tập tiếp theo
@@ -279,9 +293,12 @@ function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }) {
     // Hiển thị nút bỏ qua giới thiệu khi đến đoạn giới thiệu
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "MoviePlayer.useEffect": ()=>{
+            console.log('Current Time:', currentTime, 'Is Playing:', isPlaying);
             // Hiển thị nút bỏ qua giới thiệu khi thời gian > 10s và < 85s
-            if (isPlaying && currentTime > 10 && currentTime < INTRO_DURATION - 5) {
+            // Luôn hiển thị nút bỏ qua giới thiệu trong khoảng thời gian này, bất kể trạng thái phát
+            if (currentTime > 10 && currentTime < INTRO_DURATION - 5) {
                 setShowSkipIntro(true);
+                console.log('Showing Skip Intro button');
             } else {
                 setShowSkipIntro(false);
             }
@@ -338,9 +355,9 @@ function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }) {
         ref: playerRef,
         className: "absolute inset-0 bg-black flex flex-col items-center justify-center",
         children: [
-            showSkipIntro && isPlaying && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+            showSkipIntro && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                 onClick: skipIntro,
-                className: "absolute bottom-24 right-8 z-50 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-300 backdrop-blur-sm",
+                className: "absolute bottom-24 right-8 z-50 bg-red-600/80 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-300 backdrop-blur-sm animate-pulse",
                 children: [
                     "Bỏ qua giới thiệu",
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
@@ -356,18 +373,18 @@ function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }) {
                             d: "M13 5l7 7-7 7M5 5l7 7-7 7"
                         }, void 0, false, {
                             fileName: "[project]/app/components/movie-player.tsx",
-                            lineNumber: 249,
+                            lineNumber: 268,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/components/movie-player.tsx",
-                        lineNumber: 248,
+                        lineNumber: 267,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/movie-player.tsx",
-                lineNumber: 243,
+                lineNumber: 262,
                 columnNumber: 9
             }, this),
             showNextEpisode && nextEpisode && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -382,7 +399,7 @@ function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }) {
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/movie-player.tsx",
-                        lineNumber: 257,
+                        lineNumber: 276,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -390,7 +407,7 @@ function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }) {
                         children: nextEpisode.name
                     }, void 0, false, {
                         fileName: "[project]/app/components/movie-player.tsx",
-                        lineNumber: 258,
+                        lineNumber: 277,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -402,7 +419,7 @@ function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }) {
                                 children: "Hủy"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/movie-player.tsx",
-                                lineNumber: 260,
+                                lineNumber: 279,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -423,30 +440,30 @@ function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }) {
                                             d: "M9 5l7 7-7 7"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/movie-player.tsx",
-                                            lineNumber: 272,
+                                            lineNumber: 291,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/movie-player.tsx",
-                                        lineNumber: 271,
+                                        lineNumber: 290,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/movie-player.tsx",
-                                lineNumber: 266,
+                                lineNumber: 285,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/movie-player.tsx",
-                        lineNumber: 259,
+                        lineNumber: 278,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/movie-player.tsx",
-                lineNumber: 256,
+                lineNumber: 275,
                 columnNumber: 9
             }, this),
             !isPlaying ? // Thumbnail with play button
@@ -460,7 +477,7 @@ function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }) {
                         className: "object-cover opacity-30"
                     }, void 0, false, {
                         fileName: "[project]/app/components/movie-player.tsx",
-                        lineNumber: 282,
+                        lineNumber: 301,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -484,17 +501,17 @@ function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }) {
                                             d: "M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/movie-player.tsx",
-                                            lineNumber: 295,
+                                            lineNumber: 314,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/movie-player.tsx",
-                                        lineNumber: 294,
+                                        lineNumber: 313,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/movie-player.tsx",
-                                    lineNumber: 290,
+                                    lineNumber: 309,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -506,7 +523,7 @@ function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }) {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/components/movie-player.tsx",
-                                    lineNumber: 298,
+                                    lineNumber: 317,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -514,24 +531,24 @@ function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }) {
                                     children: "Nhấn vào nút play để xem phim"
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/movie-player.tsx",
-                                    lineNumber: 301,
+                                    lineNumber: 320,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/movie-player.tsx",
-                            lineNumber: 289,
+                            lineNumber: 308,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/components/movie-player.tsx",
-                        lineNumber: 288,
+                        lineNumber: 307,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/movie-player.tsx",
-                lineNumber: 281,
+                lineNumber: 300,
                 columnNumber: 9
             }, this) : // Real video player using ReactPlayer
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -553,15 +570,16 @@ function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }) {
                         }
                     }, void 0, false, {
                         fileName: "[project]/app/components/movie-player.tsx",
-                        lineNumber: 314,
+                        lineNumber: 333,
                         columnNumber: 17
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/components/movie-player.tsx",
-                    lineNumber: 313,
+                    lineNumber: 332,
                     columnNumber: 15
                 }, this) : // Use ReactPlayer for m3u8 and other URLs
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ReactPlayer, {
+                    ref: reactPlayerRef,
                     url: videoUrl,
                     width: "100%",
                     height: "100%",
@@ -607,7 +625,7 @@ function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }) {
                     }
                 }, void 0, false, {
                     fileName: "[project]/app/components/movie-player.tsx",
-                    lineNumber: 326,
+                    lineNumber: 345,
                     columnNumber: 15
                 }, this) : // Fallback if no video URL is available
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -620,7 +638,7 @@ function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }) {
                                 children: "Không tìm thấy nguồn phát"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/movie-player.tsx",
-                                lineNumber: 372,
+                                lineNumber: 392,
                                 columnNumber: 17
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -628,23 +646,23 @@ function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }) {
                                 children: "Rất tiếc, không tìm thấy nguồn phát cho tập phim này."
                             }, void 0, false, {
                                 fileName: "[project]/app/components/movie-player.tsx",
-                                lineNumber: 375,
+                                lineNumber: 395,
                                 columnNumber: 17
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/movie-player.tsx",
-                        lineNumber: 371,
+                        lineNumber: 391,
                         columnNumber: 15
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/components/movie-player.tsx",
-                    lineNumber: 370,
+                    lineNumber: 390,
                     columnNumber: 13
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/components/movie-player.tsx",
-                lineNumber: 309,
+                lineNumber: 328,
                 columnNumber: 9
             }, this),
             !isEmbed && !isPlaying && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -673,7 +691,7 @@ function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }) {
                                                     d: "M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/components/movie-player.tsx",
-                                                    lineNumber: 394,
+                                                    lineNumber: 414,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
@@ -683,18 +701,18 @@ function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }) {
                                                     d: "M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/components/movie-player.tsx",
-                                                    lineNumber: 395,
+                                                    lineNumber: 415,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/components/movie-player.tsx",
-                                            lineNumber: 393,
+                                            lineNumber: 413,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/movie-player.tsx",
-                                        lineNumber: 389,
+                                        lineNumber: 409,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -705,13 +723,13 @@ function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }) {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/movie-player.tsx",
-                                        lineNumber: 398,
+                                        lineNumber: 418,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/movie-player.tsx",
-                                lineNumber: 388,
+                                lineNumber: 408,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -732,28 +750,28 @@ function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }) {
                                             d: "M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/movie-player.tsx",
-                                            lineNumber: 406,
+                                            lineNumber: 426,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/movie-player.tsx",
-                                        lineNumber: 405,
+                                        lineNumber: 425,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/movie-player.tsx",
-                                    lineNumber: 401,
+                                    lineNumber: 421,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/components/movie-player.tsx",
-                                lineNumber: 400,
+                                lineNumber: 420,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/movie-player.tsx",
-                        lineNumber: 387,
+                        lineNumber: 407,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -765,28 +783,28 @@ function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }) {
                             }
                         }, void 0, false, {
                             fileName: "[project]/app/components/movie-player.tsx",
-                            lineNumber: 412,
+                            lineNumber: 432,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/components/movie-player.tsx",
-                        lineNumber: 411,
+                        lineNumber: 431,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/movie-player.tsx",
-                lineNumber: 386,
+                lineNumber: 406,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/components/movie-player.tsx",
-        lineNumber: 240,
+        lineNumber: 259,
         columnNumber: 5
     }, this);
 }
-_s(MoviePlayer, "b7TzYraLSvPO4UmPoVw64zYydX4=", false, function() {
+_s(MoviePlayer, "WRnRkEHjllRTWPavK3eYg3UtpPo=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"]
     ];

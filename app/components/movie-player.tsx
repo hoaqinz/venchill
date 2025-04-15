@@ -35,6 +35,7 @@ export default function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEp
   const [showSkipIntro, setShowSkipIntro] = useState(false);
   const [showNextEpisode, setShowNextEpisode] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null);
+  const reactPlayerRef = useRef<any>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
 
@@ -76,6 +77,20 @@ export default function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEp
     const watchKey = getWatchKey();
     if (watchKey) {
       localStorage.setItem(watchKey, INTRO_DURATION.toString());
+    }
+
+    // Nếu đang phát video, cập nhật vị trí của ReactPlayer
+    if (reactPlayerRef.current) {
+      // Sử dụng seekTo của ReactPlayer
+      reactPlayerRef.current.seekTo(INTRO_DURATION, 'seconds');
+      console.log('Skipped to:', INTRO_DURATION);
+    } else if (playerRef.current) {
+      // Fallback: Tìm ReactPlayer instance
+      const playerInstance = playerRef.current.querySelector('video');
+      if (playerInstance) {
+        playerInstance.currentTime = INTRO_DURATION;
+        console.log('Skipped to (fallback):', INTRO_DURATION);
+      }
     }
   };
 
@@ -175,9 +190,13 @@ export default function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEp
 
   // Hiển thị nút bỏ qua giới thiệu khi đến đoạn giới thiệu
   useEffect(() => {
+    console.log('Current Time:', currentTime, 'Is Playing:', isPlaying);
+
     // Hiển thị nút bỏ qua giới thiệu khi thời gian > 10s và < 85s
-    if (isPlaying && currentTime > 10 && currentTime < INTRO_DURATION - 5) {
+    // Luôn hiển thị nút bỏ qua giới thiệu trong khoảng thời gian này, bất kể trạng thái phát
+    if (currentTime > 10 && currentTime < INTRO_DURATION - 5) {
       setShowSkipIntro(true);
+      console.log('Showing Skip Intro button');
     } else {
       setShowSkipIntro(false);
     }
@@ -239,10 +258,10 @@ export default function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEp
   return (
     <div ref={playerRef} className="absolute inset-0 bg-black flex flex-col items-center justify-center">
       {/* Nút bỏ qua giới thiệu */}
-      {showSkipIntro && isPlaying && (
+      {showSkipIntro && (
         <button
           onClick={skipIntro}
-          className="absolute bottom-24 right-8 z-50 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-300 backdrop-blur-sm"
+          className="absolute bottom-24 right-8 z-50 bg-red-600/80 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-300 backdrop-blur-sm animate-pulse"
         >
           Bỏ qua giới thiệu
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -324,6 +343,7 @@ export default function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEp
             ) : (
               // Use ReactPlayer for m3u8 and other URLs
               <ReactPlayer
+                ref={reactPlayerRef}
                 url={videoUrl}
                 width="100%"
                 height="100%"
