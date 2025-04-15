@@ -22,6 +22,13 @@ async function getData(slug: string) {
   }
 }
 
+// Khi sử dụng output: 'export', cần có hàm generateStaticParams
+export async function generateStaticParams() {
+  // Trả về một mảng rỗng vì chúng ta không muốn tạo trước các trang này
+  // Cloudflare Pages sẽ xử lý các trang này khi có người truy cập
+  return [];
+}
+
 export async function generateMetadata({ params }: WatchPageProps): Promise<Metadata> {
   const data = await getData(params.slug);
 

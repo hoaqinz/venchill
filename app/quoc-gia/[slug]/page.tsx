@@ -43,9 +43,15 @@ async function getCountryName(slug: string) {
   }
 }
 
+// Khi sử dụng output: 'export', cần có hàm generateStaticParams
+export async function generateStaticParams() {
+  // Trả về một mảng rỗng vì chúng ta không muốn tạo trước các trang này
+  return [];
+}
+
 export async function generateMetadata({ params }: CountryPageProps): Promise<Metadata> {
   const countryName = await getCountryName(params.slug);
-  
+
   return {
     title: `Phim ${countryName} - VenChill`,
     description: `Danh sách phim ${countryName.toLowerCase()} mới nhất, chất lượng cao tại VenChill.`,
@@ -56,7 +62,7 @@ export default async function CountryPage({ params, searchParams }: CountryPageP
   const currentPage = searchParams.page ? parseInt(searchParams.page) : 1;
   const data = await getData(params.slug, currentPage);
   const countryName = await getCountryName(params.slug);
-  
+
   const totalPages = Math.ceil(
     data.params.pagination.totalItems / data.params.pagination.totalItemsPerPage
   );
@@ -70,9 +76,9 @@ export default async function CountryPage({ params, searchParams }: CountryPageP
             Tổng cộng {data.params.pagination.totalItems} phim
           </p>
         </div>
-        
+
         <MovieGrid movies={data.items} />
-        
+
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

@@ -47,9 +47,15 @@ async function getData(slug: string, page: number = 1) {
   }
 }
 
+// Khi sử dụng output: 'export', cần có hàm generateStaticParams
+export async function generateStaticParams() {
+  // Trả về các slug của danh mục để tạo trước các trang này
+  return Object.keys(CATEGORY_TITLES).map(slug => ({ slug }));
+}
+
 export async function generateMetadata({ params }: ListPageProps): Promise<Metadata> {
   const title = CATEGORY_TITLES[params.slug] || "Danh sách phim";
-  
+
   return {
     title: `${title} - VenChill`,
     description: `Danh sách ${title.toLowerCase()} mới nhất, chất lượng cao tại VenChill.`,
@@ -60,7 +66,7 @@ export default async function ListPage({ params, searchParams }: ListPageProps) 
   const currentPage = searchParams.page ? parseInt(searchParams.page) : 1;
   const data = await getData(params.slug, currentPage);
   const title = CATEGORY_TITLES[params.slug] || "Danh sách phim";
-  
+
   const totalPages = Math.ceil(
     data.params.pagination.totalItems / data.params.pagination.totalItemsPerPage
   );
@@ -74,9 +80,9 @@ export default async function ListPage({ params, searchParams }: ListPageProps) 
             Tổng cộng {data.params.pagination.totalItems} phim
           </p>
         </div>
-        
+
         <MovieGrid movies={data.items} />
-        
+
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

@@ -43,9 +43,15 @@ async function getCategoryName(slug: string) {
   }
 }
 
+// Khi sử dụng output: 'export', cần có hàm generateStaticParams
+export async function generateStaticParams() {
+  // Trả về một mảng rỗng vì chúng ta không muốn tạo trước các trang này
+  return [];
+}
+
 export async function generateMetadata({ params }: GenrePageProps): Promise<Metadata> {
   const categoryName = await getCategoryName(params.slug);
-  
+
   return {
     title: `Phim ${categoryName} - VenChill`,
     description: `Danh sách phim ${categoryName.toLowerCase()} mới nhất, chất lượng cao tại VenChill.`,
@@ -56,7 +62,7 @@ export default async function GenrePage({ params, searchParams }: GenrePageProps
   const currentPage = searchParams.page ? parseInt(searchParams.page) : 1;
   const data = await getData(params.slug, currentPage);
   const categoryName = await getCategoryName(params.slug);
-  
+
   const totalPages = Math.ceil(
     data.params.pagination.totalItems / data.params.pagination.totalItemsPerPage
   );
@@ -70,9 +76,9 @@ export default async function GenrePage({ params, searchParams }: GenrePageProps
             Tổng cộng {data.params.pagination.totalItems} phim
           </p>
         </div>
-        
+
         <MovieGrid movies={data.items} />
-        
+
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

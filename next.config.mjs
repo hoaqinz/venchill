@@ -11,6 +11,30 @@ const nextConfig = {
     // Cảnh báo thay vì lỗi trong quá trình build
     ignoreBuildErrors: true,
   },
+
+  // Sử dụng output: 'export' để tạo các file tính
+  output: 'export',
+
+  // Tắt tạo image tự động
+  images: {
+    unoptimized: true,
+  },
+
+  // Tối ưu hóa webpack
+  webpack: (config, { isServer }) => {
+    // Tối ưu hóa các module
+    config.optimization.minimize = true;
+
+    // Chia nhỏ các chunk
+    config.optimization.splitChunks = {
+      chunks: 'all',
+      maxInitialRequests: 25,
+      minSize: 20000,
+      maxSize: 20 * 1024 * 1024, // 20MB
+    };
+
+    return config;
+  },
   // Tối ưu cho Cloudflare Pages
   // Không cần chỉ định output và distDir khi dùng Cloudflare Pages
 
