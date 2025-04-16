@@ -23,6 +23,14 @@ cp public/_redirects out/
 cp public/_headers out/
 cp public/404.html out/
 cp public/_worker.js out/
+cp public/index.html out/
+cp public/app.html out/
+
+# Tạo thư mục _next/static nếu chưa tồn tại
+mkdir -p out/_next/static
+
+# Sao chép file app.html vào thư mục _next/static và đổi tên thành index.html
+cp public/app.html out/_next/static/index.html
 
 # Hiển thị thông tin về kích thước file
 echo "Các file lớn nhất:"
