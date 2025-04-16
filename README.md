@@ -45,13 +45,32 @@ yarn dev
 
 4. Truy cập http://localhost:3000 để xem trang web
 
-## Triển khai lên Cloudflare Pages
+## Triển khai
+
+### Cloudflare Pages
 
 1. Đẩy code lên GitHub
 2. Kết nối repository với Cloudflare Pages
+3. Cấu hình build command: `npm run cloudflare:build`
+4. Cấu hình output directory: `out`
+5. Thêm các biến môi trường:
+   - `NODE_VERSION`: `18`
+   - `NEXT_TELEMETRY_DISABLED`: `1`
+
+### Netlify
+
+1. Đẩy code lên GitHub
+2. Kết nối repository với Netlify
 3. Cấu hình build command: `npm run build`
-4. Cấu hình output directory: `.next`
-5. Thêm các biến môi trường cần thiết (nếu có)
+4. Cấu hình output directory: `out`
+5. File `netlify.toml` đã được cấu hình sẵn
+
+### Vercel
+
+1. Đẩy code lên GitHub
+2. Kết nối repository với Vercel
+3. Cấu hình build command: `npm run build`
+4. File `vercel.json` đã được cấu hình sẵn
 
 ## Công nghệ sử dụng
 

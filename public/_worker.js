@@ -2,7 +2,7 @@
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    
+
     // Serve static assets directly
     if (
       url.pathname.startsWith('/_next/') ||
@@ -12,14 +12,24 @@ export default {
     ) {
       return fetch(request);
     }
-    
+
     // For all other routes, serve the index.html file
-    const response = await fetch(new URL('/index.html', url.origin));
-    
-    // Clone the response and modify headers
-    const newResponse = new Response(response.body, response);
-    newResponse.headers.set('Content-Type', 'text/html; charset=UTF-8');
-    
-    return newResponse;
+    try {
+      const response = await fetch(new URL('/index.html', url.origin));
+
+      // Clone the response and modify headers
+      const newResponse = new Response(response.body, response);
+      newResponse.headers.set('Content-Type', 'text/html; charset=UTF-8');
+
+      return newResponse;
+    } catch (error) {
+      console.error('Error serving index.html:', error);
+      return new Response('Error loading the application. Please try again later.', {
+        status: 500,
+        headers: {
+          'Content-Type': 'text/plain'
+        }
+      });
+    }
   }
 };

@@ -1,4 +1,4 @@
 # Redirects for Cloudflare Pages
 
-# SPA fallback
+# SPA fallback - đảm bảo tất cả các route đều trỏ về index.html
 /*  /index.html  200

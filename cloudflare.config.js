@@ -14,17 +14,17 @@ module.exports = {
   routes: [
     // Handle static assets
     {
-      pattern: "/static/*",
+      pattern: "/_next/*",
       headers: {
         "Cache-Control": "public, max-age=31536000, immutable",
       },
     },
 
-    // Handle API routes
+    // Handle images
     {
-      pattern: "/api/*",
+      pattern: "/images/*",
       headers: {
-        "Cache-Control": "no-cache",
+        "Cache-Control": "public, max-age=31536000, immutable",
       },
     },
 

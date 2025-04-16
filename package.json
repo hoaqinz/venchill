@@ -9,7 +9,9 @@
     "lint": "next lint",
     "pages:build": "NEXT_TELEMETRY_DISABLED=1 NODE_ENV=production next build",
     "cloudflare:build": "bash ./cloudflare-build.sh",
-    "cloudflare:deploy": "npx wrangler pages deploy .next"
+    "cloudflare:deploy": "npx wrangler pages deploy out",
+    "netlify:build": "NEXT_TELEMETRY_DISABLED=1 NODE_ENV=production next build",
+    "vercel:build": "NEXT_TELEMETRY_DISABLED=1 NODE_ENV=production next build"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.7",
