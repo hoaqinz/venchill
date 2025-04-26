@@ -50,7 +50,8 @@ async function getData(slug: string, page: number = 1) {
 // Khi sử dụng output: 'export', cần có hàm generateStaticParams
 export async function generateStaticParams() {
   // Trả về danh sách các slug và page để tạo trước các trang này
-  return STATIC_LIST_PAGES;
+  // Chỉ trả về các mục có tham số page (không phải trang đầu tiên)
+  return STATIC_LIST_PAGES.filter(item => item.page !== undefined);
 }
 
 export async function generateMetadata({ params }: ListPageProps): Promise<Metadata> {
