@@ -2,16 +2,9 @@ import { Metadata } from "next";
 import { getMoviesByCategory } from "@/app/lib/api";
 import { MovieGrid } from "@/app/components/movie-grid";
 import { Pagination } from "@/app/components/pagination";
+import { STATIC_LIST_PAGES } from "@/app/lib/static-params";
 
-interface ListPageProps {
-  params: {
-    slug: string;
-  };
-  searchParams: {
-    page?: string;
-  };
-}
-
+// Tiêu đề cho các danh mục
 const CATEGORY_TITLES: Record<string, string> = {
   "phim-moi-cap-nhat": "Phim Mới Cập Nhật",
   "phim-bo": "Phim Bộ",
@@ -26,6 +19,13 @@ const CATEGORY_TITLES: Record<string, string> = {
   "phim-sap-chieu": "Phim Sắp Chiếu",
   "subteam": "Phim Subteam",
 };
+
+interface ListPageProps {
+  params: {
+    slug: string;
+    page: string;
+  };
+}
 
 async function getData(slug: string, page: number = 1) {
   try {
@@ -48,26 +48,48 @@ async function getData(slug: string, page: number = 1) {
 }
 
 // Khi sử dụng output: 'export', cần có hàm generateStaticParams
-import { STATIC_LIST_SLUGS, STATIC_LIST_PAGES } from "@/app/lib/static-params";
-
 export async function generateStaticParams() {
-  // Trả về danh sách các slug của danh mục để tạo trước các trang này
-  // Chỉ tạo trang đầu tiên cho mỗi danh mục
-  return STATIC_LIST_SLUGS.map(slug => ({ slug }));
+  // Trả về danh sách các slug và page để tạo trước các trang này
+  return STATIC_LIST_PAGES;
 }
 
 export async function generateMetadata({ params }: ListPageProps): Promise<Metadata> {
   const title = CATEGORY_TITLES[params.slug] || "Danh sách phim";
+  const page = params.page || "1";
 
   return {
-    title: `${title} - VenChill`,
-    description: `Danh sách ${title.toLowerCase()} mới nhất, chất lượng cao tại VenChill.`,
+    title: `${title} - Trang ${page} - VenChill`,
+    description: `Danh sách ${title.toLowerCase()} mới nhất, trang ${page}, chất lượng cao tại VenChill.`,
   };
 }
 
-export default async function ListPage({ params, searchParams }: ListPageProps) {
-  // Luôn sử dụng trang 1 cho trang danh sách chính
-  const currentPage = 1;
+export default async function ListPageWithPagination({ params }: ListPageProps) {
+  // Chuyển đổi tham số trang thành số
+  const currentPage = parseInt(params.page) || 1;
+
+  // Nếu là trang 1, chuyển hướng đến trang danh sách chính
+  if (currentPage === 1) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-white mb-4">Đang chuyển hướng...</h1>
+          <p className="text-gray-400">
+            Đang chuyển hướng đến trang danh sách chính.
+          </p>
+          {/* Script chuyển hướng */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                window.location.href = "/danh-sach/${params.slug}";
+              `,
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Lấy dữ liệu cho trang hiện tại
   const data = await getData(params.slug, currentPage);
   const title = CATEGORY_TITLES[params.slug] || "Danh sách phim";
 
@@ -81,7 +103,7 @@ export default async function ListPage({ params, searchParams }: ListPageProps) 
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white">{title}</h1>
           <p className="text-gray-400 mt-2">
-            Tổng cộng {data.params.pagination.totalItems} phim
+            Tổng cộng {data.params.pagination.totalItems} phim - Trang {currentPage}/{totalPages}
           </p>
         </div>
 

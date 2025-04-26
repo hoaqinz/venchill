@@ -26,6 +26,10 @@ export function Header() {
     if (searchQuery.trim()) {
       router.push(`/tim-kiem?keyword=${encodeURIComponent(searchQuery)}`);
       setSearchQuery("");
+      // Đóng menu mobile nếu đang mở
+      if (isMenuOpen) {
+        setIsMenuOpen(false);
+      }
     }
   };
 

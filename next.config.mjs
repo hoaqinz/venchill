@@ -12,15 +12,17 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
-  // Không sử dụng output: 'export' để tránh lỗi với generateStaticParams
-  // output: 'export',
-  // distDir: 'out',
-  // trailingSlash: true,
+  // Sử dụng output: 'export' cho Cloudflare Pages chỉ trong môi trường production
+  ...(process.env.NODE_ENV === 'production' ? {
+    output: 'export',
+    distDir: 'out',
+    trailingSlash: true,
+  } : {}),
 
-  // Tắt tạo image tự động
-  images: {
-    unoptimized: true,
-  },
+  // Tăng thời gian build để tránh timeout
+  staticPageGenerationTimeout: 300, // 5 phút
+
+  // Cấu hình images
 
   // Tối ưu hóa webpack
   webpack: (config, { isServer }) => {

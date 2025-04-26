@@ -1,49 +1,74 @@
 import Link from "next/link";
 import Image from "next/image";
-import { getLatestMovies, getTrendingMovies, getMoviesByCategory } from "@/app/lib/api";
+import { getHomeData } from "@/app/lib/api";
 import { getImageUrl } from "@/app/lib/utils";
 
 async function getData() {
   try {
-    // Lấy dữ liệu phim từ API - sử dụng dữ liệu mẫu để tránh lỗi
-    const response = await fetch('https://ophim1.com/v1/api/home');
-    const data = await response.json();
+    // Lấy dữ liệu phim từ API đã cập nhật
+    const homeData = await getHomeData();
 
-    // Lấy danh sách phim từ API
-    const movies = data?.data?.items || [];
+    // Lấy dữ liệu từ các chuyên mục
+    const phimMoiCapNhat = homeData?.customSections?.phimMoiCapNhat?.items || [];
+    const phimChieuRap = homeData?.customSections?.phimChieuRap?.items || [];
+    const phimBo = homeData?.customSections?.phimBo?.items || [];
+    const phimLe = homeData?.customSections?.phimLe?.items || [];
+    const phimHoatHinh = homeData?.customSections?.phimHoatHinh?.items || [];
 
-    // Phân loại phim
-    const latestMovies = movies.slice(0, 12);
-    const trendingMovies = [...movies].sort(() => Math.random() - 0.5).slice(0, 10);
-    const seriesMovies = movies.filter(movie => movie.type === "series").slice(0, 6);
-    const singleMovies = movies.filter(movie => movie.type === "single").slice(0, 6);
-    const animeMovies = movies.filter(movie => movie.category.some(cat => cat.name.toLowerCase().includes('hoạt hình'))).slice(0, 6);
+    // Lấy dữ liệu từ các thể loại phổ biến
+    const phimHanhDong = homeData?.customSections?.phimHanhDong?.items || [];
+    const phimTinhCam = homeData?.customSections?.phimTinhCam?.items || [];
+    const phimHaiHuoc = homeData?.customSections?.phimHaiHuoc?.items || [];
+
+    // Lấy phim đề xuất từ API
+    const phimDeXuat = homeData?.data?.items?.phim_de_cu || [];
+
+    // Tạo danh sách phim trending từ phim đề xuất hoặc phim mới cập nhật
+    const trendingMovies = phimDeXuat.length > 0 ? phimDeXuat : phimMoiCapNhat.slice(0, 10);
 
     return {
-      latestMovies,
-      trendingMovies,
-      seriesMovies: seriesMovies.length > 0 ? seriesMovies : latestMovies.slice(0, 6),
-      singleMovies: singleMovies.length > 0 ? singleMovies : latestMovies.slice(6, 12),
-      animeMovies: animeMovies.length > 0 ? animeMovies : trendingMovies.slice(0, 6)
+      phimMoiCapNhat: phimMoiCapNhat.slice(0, 16),
+      phimChieuRap: phimChieuRap.slice(0, 16),
+      phimBo: phimBo.slice(0, 16),
+      phimLe: phimLe.slice(0, 16),
+      phimHoatHinh: phimHoatHinh.slice(0, 16),
+      phimHanhDong: phimHanhDong.slice(0, 16),
+      phimTinhCam: phimTinhCam.slice(0, 16),
+      phimHaiHuoc: phimHaiHuoc.slice(0, 16),
+      trendingMovies: trendingMovies.slice(0, 10)
     };
   } catch (error) {
     console.error("Error fetching data:", error);
     // Trả về mảng rỗng để tránh lỗi
     return {
-      latestMovies: [],
-      trendingMovies: [],
-      seriesMovies: [],
-      singleMovies: [],
-      animeMovies: []
+      phimMoiCapNhat: [],
+      phimChieuRap: [],
+      phimBo: [],
+      phimLe: [],
+      phimHoatHinh: [],
+      phimHanhDong: [],
+      phimTinhCam: [],
+      phimHaiHuoc: [],
+      trendingMovies: []
     };
   }
 }
 
 export default async function Home() {
-  const { latestMovies, trendingMovies, seriesMovies, singleMovies, animeMovies } = await getData();
+  const {
+    phimMoiCapNhat,
+    phimChieuRap,
+    phimBo,
+    phimLe,
+    phimHoatHinh,
+    phimHanhDong,
+    phimTinhCam,
+    phimHaiHuoc,
+    trendingMovies
+  } = await getData();
 
   // Lấy phim nổi bật cho hero section
-  const heroMovie = trendingMovies[0] || latestMovies[0];
+  const heroMovie = trendingMovies[0] || phimMoiCapNhat[0];
 
   return (
     <div className="min-h-screen">
@@ -144,12 +169,12 @@ export default async function Home() {
           </div>
         </div>
 
-        {/* Latest Movies */}
+        {/* Phim Mới Cập Nhật */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold mb-6 text-white">Phim Mới Cập Nhật</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            {latestMovies.slice(0, 12).map((movie) => (
-              <Link key={movie._id} href={`/phim/${movie.slug}`} className="group">
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-8 gap-4">
+            {phimMoiCapNhat.slice(0, 16).map((movie) => (
+              <Link key={movie._id || movie.slug} href={`/phim/${movie.slug}`} className="group">
                 <div className="relative aspect-[2/3] overflow-hidden rounded-md">
                   <Image
                     src={getImageUrl(movie.thumb_url)}
@@ -182,12 +207,50 @@ export default async function Home() {
           </div>
         </div>
 
-        {/* Series Movies */}
+        {/* Phim Chiếu Rạp */}
         <div className="mb-12">
-          <h2 className="text-2xl font-bold mb-6 text-white">Phim Bộ Đặc Sắc</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            {seriesMovies.slice(0, 6).map((movie) => (
-              <Link key={movie._id} href={`/phim/${movie.slug}`} className="group">
+          <h2 className="text-2xl font-bold mb-6 text-white">Phim Chiếu Rạp</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-8 gap-4">
+            {phimChieuRap.slice(0, 16).map((movie) => (
+              <Link key={movie._id || movie.slug} href={`/phim/${movie.slug}`} className="group">
+                <div className="relative aspect-[2/3] overflow-hidden rounded-md">
+                  <Image
+                    src={getImageUrl(movie.thumb_url)}
+                    alt={movie.name}
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-100" />
+                  <div className="absolute bottom-0 left-0 right-0 p-3">
+                    <h3 className="font-bold text-sm text-white line-clamp-1 group-hover:text-red-500 transition-colors">
+                      {movie.name}
+                    </h3>
+                    <p className="text-xs text-gray-300 mt-1 line-clamp-1">{movie.origin_name}</p>
+                  </div>
+
+                  {/* Episode badge */}
+                  {movie.episode_current && (
+                    <div className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
+                      {movie.episode_current}
+                    </div>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+          <div className="mt-6 text-center">
+            <Link href="/danh-sach/phim-chieu-rap" className="inline-block bg-gray-800 hover:bg-gray-700 text-white px-6 py-3 rounded-md font-medium">
+              Xem thêm
+            </Link>
+          </div>
+        </div>
+
+        {/* Phim Bộ */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold mb-6 text-white">Phim Bộ</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-8 gap-4">
+            {phimBo.slice(0, 16).map((movie) => (
+              <Link key={movie._id || movie.slug} href={`/phim/${movie.slug}`} className="group">
                 <div className="relative aspect-[2/3] overflow-hidden rounded-md">
                   <Image
                     src={getImageUrl(movie.thumb_url)}
@@ -220,12 +283,12 @@ export default async function Home() {
           </div>
         </div>
 
-        {/* Single Movies */}
+        {/* Phim Lẻ */}
         <div className="mb-12">
-          <h2 className="text-2xl font-bold mb-6 text-white">Phim Lẻ Mới Nhất</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            {singleMovies.slice(0, 6).map((movie) => (
-              <Link key={movie._id} href={`/phim/${movie.slug}`} className="group">
+          <h2 className="text-2xl font-bold mb-6 text-white">Phim Lẻ</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-8 gap-4">
+            {phimLe.slice(0, 16).map((movie) => (
+              <Link key={movie._id || movie.slug} href={`/phim/${movie.slug}`} className="group">
                 <div className="relative aspect-[2/3] overflow-hidden rounded-md">
                   <Image
                     src={getImageUrl(movie.thumb_url)}
@@ -251,12 +314,12 @@ export default async function Home() {
           </div>
         </div>
 
-        {/* Anime Movies */}
+        {/* Phim Hoạt Hình */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold mb-6 text-white">Phim Hoạt Hình</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            {animeMovies.slice(0, 6).map((movie) => (
-              <Link key={movie._id} href={`/phim/${movie.slug}`} className="group">
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-8 gap-4">
+            {phimHoatHinh.slice(0, 16).map((movie) => (
+              <Link key={movie._id || movie.slug} href={`/phim/${movie.slug}`} className="group">
                 <div className="relative aspect-[2/3] overflow-hidden rounded-md">
                   <Image
                     src={getImageUrl(movie.thumb_url)}
@@ -277,6 +340,120 @@ export default async function Home() {
           </div>
           <div className="mt-6 text-center">
             <Link href="/danh-sach/hoat-hinh" className="inline-block bg-gray-800 hover:bg-gray-700 text-white px-6 py-3 rounded-md font-medium">
+              Xem thêm
+            </Link>
+          </div>
+        </div>
+
+        {/* Phim Hành Động */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold mb-6 text-white">Phim Hành Động</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-8 gap-4">
+            {phimHanhDong.slice(0, 16).map((movie) => (
+              <Link key={movie._id || movie.slug} href={`/phim/${movie.slug}`} className="group">
+                <div className="relative aspect-[2/3] overflow-hidden rounded-md">
+                  <Image
+                    src={getImageUrl(movie.thumb_url)}
+                    alt={movie.name}
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-100" />
+                  <div className="absolute bottom-0 left-0 right-0 p-3">
+                    <h3 className="font-bold text-sm text-white line-clamp-1 group-hover:text-red-500 transition-colors">
+                      {movie.name}
+                    </h3>
+                    <p className="text-xs text-gray-300 mt-1 line-clamp-1">{movie.origin_name}</p>
+                  </div>
+
+                  {/* Episode badge */}
+                  {movie.episode_current && (
+                    <div className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
+                      {movie.episode_current}
+                    </div>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+          <div className="mt-6 text-center">
+            <Link href="/the-loai/hanh-dong" className="inline-block bg-gray-800 hover:bg-gray-700 text-white px-6 py-3 rounded-md font-medium">
+              Xem thêm
+            </Link>
+          </div>
+        </div>
+
+        {/* Phim Tình Cảm */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold mb-6 text-white">Phim Tình Cảm</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-8 gap-4">
+            {phimTinhCam.slice(0, 16).map((movie) => (
+              <Link key={movie._id || movie.slug} href={`/phim/${movie.slug}`} className="group">
+                <div className="relative aspect-[2/3] overflow-hidden rounded-md">
+                  <Image
+                    src={getImageUrl(movie.thumb_url)}
+                    alt={movie.name}
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-100" />
+                  <div className="absolute bottom-0 left-0 right-0 p-3">
+                    <h3 className="font-bold text-sm text-white line-clamp-1 group-hover:text-red-500 transition-colors">
+                      {movie.name}
+                    </h3>
+                    <p className="text-xs text-gray-300 mt-1 line-clamp-1">{movie.origin_name}</p>
+                  </div>
+
+                  {/* Episode badge */}
+                  {movie.episode_current && (
+                    <div className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
+                      {movie.episode_current}
+                    </div>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+          <div className="mt-6 text-center">
+            <Link href="/the-loai/tinh-cam" className="inline-block bg-gray-800 hover:bg-gray-700 text-white px-6 py-3 rounded-md font-medium">
+              Xem thêm
+            </Link>
+          </div>
+        </div>
+
+        {/* Phim Hài Hước */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold mb-6 text-white">Phim Hài Hước</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-8 gap-4">
+            {phimHaiHuoc.slice(0, 16).map((movie) => (
+              <Link key={movie._id || movie.slug} href={`/phim/${movie.slug}`} className="group">
+                <div className="relative aspect-[2/3] overflow-hidden rounded-md">
+                  <Image
+                    src={getImageUrl(movie.thumb_url)}
+                    alt={movie.name}
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-100" />
+                  <div className="absolute bottom-0 left-0 right-0 p-3">
+                    <h3 className="font-bold text-sm text-white line-clamp-1 group-hover:text-red-500 transition-colors">
+                      {movie.name}
+                    </h3>
+                    <p className="text-xs text-gray-300 mt-1 line-clamp-1">{movie.origin_name}</p>
+                  </div>
+
+                  {/* Episode badge */}
+                  {movie.episode_current && (
+                    <div className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
+                      {movie.episode_current}
+                    </div>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+          <div className="mt-6 text-center">
+            <Link href="/the-loai/hai-huoc" className="inline-block bg-gray-800 hover:bg-gray-700 text-white px-6 py-3 rounded-md font-medium">
               Xem thêm
             </Link>
           </div>

@@ -67,8 +67,9 @@ export function Pagination({ currentPage, totalPages, baseUrl }: PaginationProps
         {/* Previous Page Button */}
         {currentPage > 1 ? (
           <Link
-            href={`${baseUrl}?page=${currentPage - 1}`}
+            href={currentPage - 1 === 1 ? baseUrl : `${baseUrl}/${currentPage - 1}`}
             className="px-3 py-2 rounded-md bg-gray-800 text-gray-300 hover:bg-gray-700 flex items-center"
+            prefetch={false} // Tắt prefetch để tránh lỗi
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -94,12 +95,13 @@ export function Pagination({ currentPage, totalPages, baseUrl }: PaginationProps
           ) : (
             <Link
               key={`page-${page}`}
-              href={`${baseUrl}?page=${page}`}
+              href={page === 1 ? baseUrl : `${baseUrl}/${page}`}
               className={`px-3 py-2 rounded-md ${
                 currentPage === page
                   ? "bg-red-600 text-white"
                   : "bg-gray-800 text-gray-300 hover:bg-gray-700"
               }`}
+              prefetch={false} // Tắt prefetch để tránh lỗi
             >
               {page}
             </Link>
@@ -109,8 +111,9 @@ export function Pagination({ currentPage, totalPages, baseUrl }: PaginationProps
         {/* Next Page Button */}
         {currentPage < totalPages ? (
           <Link
-            href={`${baseUrl}?page=${currentPage + 1}`}
+            href={`${baseUrl}/${currentPage + 1}`}
             className="px-3 py-2 rounded-md bg-gray-800 text-gray-300 hover:bg-gray-700 flex items-center"
+            prefetch={false} // Tắt prefetch để tránh lỗi
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

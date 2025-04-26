@@ -25,7 +25,22 @@ import { STATIC_MOVIE_SLUGS } from "@/app/lib/static-params";
 
 export async function generateStaticParams() {
   // Trả về danh sách các slug của phim để tạo trước các trang này
-  return STATIC_MOVIE_SLUGS.map(slug => ({ slug }));
+  // Thêm slug hiện tại nếu đang trong môi trường phát triển
+  const slugs = [...STATIC_MOVIE_SLUGS];
+
+  // Thêm slug hiện tại nếu đang trong môi trường phát triển
+  if (process.env.NODE_ENV === 'development') {
+    // Lấy slug từ URL hiện tại nếu có
+    const currentUrl = typeof window !== 'undefined' ? window.location.pathname : '';
+    if (currentUrl && currentUrl.startsWith('/phim/')) {
+      const currentSlug = currentUrl.split('/phim/')[1];
+      if (currentSlug && !slugs.includes(currentSlug)) {
+        slugs.push(currentSlug);
+      }
+    }
+  }
+
+  return slugs.map(slug => ({ slug }));
 }
 
 export async function generateMetadata({ params }: MoviePageProps): Promise<Metadata> {

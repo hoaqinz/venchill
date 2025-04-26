@@ -27,7 +27,30 @@ import { STATIC_EPISODE_SLUGS } from "@/app/lib/static-params";
 
 export async function generateStaticParams() {
   // Trả về danh sách các slug và tập của phim để tạo trước các trang này
-  return STATIC_EPISODE_SLUGS;
+  // Thêm slug hiện tại nếu đang trong môi trường phát triển
+  const episodes = [...STATIC_EPISODE_SLUGS];
+
+  // Thêm slug hiện tại nếu đang trong môi trường phát triển
+  if (process.env.NODE_ENV === 'development') {
+    // Lấy slug từ URL hiện tại nếu có
+    const currentUrl = typeof window !== 'undefined' ? window.location.pathname : '';
+    if (currentUrl && currentUrl.startsWith('/xem-phim/')) {
+      const parts = currentUrl.split('/xem-phim/')[1].split('/');
+      if (parts.length >= 2) {
+        const currentSlug = parts[0];
+        const currentTap = parts[1];
+
+        // Kiểm tra xem đã có trong danh sách chưa
+        const exists = episodes.some(ep => ep.slug === currentSlug && ep.tap === currentTap);
+
+        if (!exists) {
+          episodes.push({ slug: currentSlug, tap: currentTap });
+        }
+      }
+    }
+  }
+
+  return episodes;
 }
 
 export async function generateMetadata({ params }: WatchPageProps): Promise<Metadata> {
