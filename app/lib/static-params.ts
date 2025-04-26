@@ -83,6 +83,21 @@ export const STATIC_COUNTRY_SLUGS = [
   'au-my',
 ];
 
+// Tạo danh sách các slug và trang cho quốc gia
+// Mỗi quốc gia sẽ có 3 trang
+export const STATIC_COUNTRY_PAGES = [];
+
+// Tạo danh sách các trang cho mỗi quốc gia
+for (const slug of STATIC_COUNTRY_SLUGS) {
+  // Tạo trang đầu tiên (không có tham số page)
+  STATIC_COUNTRY_PAGES.push({ slug });
+
+  // Tạo các trang 1, 2, 3 với tham số page
+  for (let page = 1; page <= 3; page++) {
+    STATIC_COUNTRY_PAGES.push({ slug, page: page.toString() });
+  }
+}
+
 // Tạo danh sách các slug và trang cho danh mục
 // Mỗi danh mục sẽ có 3 trang
 export const STATIC_LIST_PAGES = [];
