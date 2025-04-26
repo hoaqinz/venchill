@@ -1,4 +1,9 @@
 # Redirects for Cloudflare Pages
 
-# SPA fallback
-/*  /index.html  200
+# Redirect for old paths
+/phim-le/* /danh-sach/phim-le 301
+/phim-bo/* /danh-sach/phim-bo 301
+/hoat-hinh/* /danh-sach/hoat-hinh 301
+
+# Handle 404 errors
+/* /404.html 404

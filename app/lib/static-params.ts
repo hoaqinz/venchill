@@ -74,6 +74,21 @@ export const STATIC_CATEGORY_SLUGS = [
   'hoat-hinh',
 ];
 
+// Tạo danh sách các slug và trang cho thể loại
+// Mỗi thể loại sẽ có 3 trang
+export const STATIC_CATEGORY_PAGES = [];
+
+// Tạo danh sách các trang cho mỗi thể loại
+for (const slug of STATIC_CATEGORY_SLUGS) {
+  // Tạo trang đầu tiên (không có tham số page)
+  STATIC_CATEGORY_PAGES.push({ slug });
+
+  // Tạo các trang 1, 2, 3 với tham số page
+  for (let page = 1; page <= 3; page++) {
+    STATIC_CATEGORY_PAGES.push({ slug, page: page.toString() });
+  }
+}
+
 export const STATIC_COUNTRY_SLUGS = [
   'viet-nam',
   'trung-quoc',

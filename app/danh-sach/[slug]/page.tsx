@@ -7,9 +7,6 @@ interface ListPageProps {
   params: {
     slug: string;
   };
-  searchParams: {
-    page?: string;
-  };
 }
 
 const CATEGORY_TITLES: Record<string, string> = {
@@ -65,7 +62,7 @@ export async function generateMetadata({ params }: ListPageProps): Promise<Metad
   };
 }
 
-export default async function ListPage({ params, searchParams }: ListPageProps) {
+export default async function ListPage({ params }: ListPageProps) {
   // Luôn sử dụng trang 1 cho trang danh sách chính
   const currentPage = 1;
   const data = await getData(params.slug, currentPage);
