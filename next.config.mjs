@@ -12,10 +12,10 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
-  // Cấu hình cho Cloudflare Pages
-  output: 'export',
-  distDir: 'out',
-  trailingSlash: true,
+  // Không sử dụng output: 'export' để tránh lỗi với generateStaticParams
+  // output: 'export',
+  // distDir: 'out',
+  // trailingSlash: true,
 
   // Tắt tạo image tự động
   images: {

@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Metadata } from "next";
 import { getMovieBySlug } from "@/app/lib/api";
 import { getImageUrl } from "@/app/lib/utils";
-import MoviePlayer from "@/app/components/movie-player";
+import StaticPlayer from "@/app/components/static-player";
 
 interface WatchPageProps {
   params: {
@@ -153,8 +153,8 @@ export default async function WatchPage({ params }: WatchPageProps) {
           {currentEpisode ? (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="relative w-full h-full">
-                {/* Giả lập player */}
-                <MoviePlayer
+                {/* Static Player */}
+                <StaticPlayer
                   currentEpisode={currentEpisode}
                   movie={movie}
                   nextEpisode={nextEpisode}

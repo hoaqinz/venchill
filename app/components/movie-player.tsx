@@ -20,20 +20,73 @@ interface MoviePlayerProps {
 }
 
 // Thời gian giới thiệu thông thường (90 giây)
-const INTRO_DURATION = 90; // seconds
+// Có thể tùy chỉnh theo từng phim hoặc tập phim
+const getIntroDuration = (movie, episode) => {
+  // Mặc định là 90 giây
+  let introDuration = 90;
+
+  // Tùy chỉnh theo phim cụ thể
+  if (movie && movie.slug) {
+    // Ví dụ: phim có giới thiệu dài hơn
+    if (movie.slug.includes('nguoi-nhen')) {
+      introDuration = 120; // 2 phút
+    } else if (movie.slug.includes('nguoi-sat')) {
+      introDuration = 100; // 1 phút 40 giây
+    }
+  }
+
+  return introDuration;
+};
+
+const INTRO_DURATION = 90; // seconds - giá trị mặc định
 
 // Thời gian còn lại để hiển thị nút tập tiếp theo (20 giây)
 const NEXT_EPISODE_THRESHOLD = 20; // seconds
 
 export default function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEpisode }: MoviePlayerProps) {
+  // Tạo key duy nhất cho video hiện tại để lưu trạng thái
+  const videoKey = `${movie?.slug || ''}:${currentEpisode?.slug || ''}:${currentEpisode?.name || ''}`;
+
+  // Khởi tạo state từ localStorage nếu có
+  const getSavedState = () => {
+    if (typeof window === 'undefined') return 0;
+    try {
+      const saved = localStorage.getItem(`venchill:${videoKey}:time`);
+      const savedTime = saved ? parseFloat(saved) : 0;
+      console.log(`Retrieved saved position: ${savedTime}s for key ${videoKey}`);
+      return savedTime;
+    } catch (e) {
+      console.error('Error reading from localStorage', e);
+      return 0;
+    }
+  };
+
+  // Kiểm tra xem localStorage có hoạt động không
+  useEffect(() => {
+    try {
+      localStorage.setItem('venchill:test', 'test');
+      const test = localStorage.getItem('venchill:test');
+      if (test === 'test') {
+        console.log('localStorage is working properly');
+        localStorage.removeItem('venchill:test');
+      } else {
+        console.error('localStorage test failed');
+      }
+    } catch (e) {
+      console.error('localStorage is not available:', e);
+    }
+  }, []);
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
+  const [currentTime, setCurrentTime] = useState(getSavedState());
   const [duration, setDuration] = useState(45 * 60); // 45 minutes in seconds
   const [volume, setVolume] = useState(100);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showSkipIntro, setShowSkipIntro] = useState(false);
   const [showNextEpisode, setShowNextEpisode] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
+  const [showResumePrompt, setShowResumePrompt] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null);
   const reactPlayerRef = useRef<any>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -68,30 +121,86 @@ export default function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEp
 
   // Bỏ qua đoạn giới thiệu
   const skipIntro = () => {
-    // Chuyển đến sau đoạn giới thiệu (90 giây)
-    setCurrentTime(INTRO_DURATION);
-    setProgress((INTRO_DURATION / duration) * 100);
+    console.log('Skipping intro...');
+    // Lấy thời gian giới thiệu tùy chỉnh theo phim
+    const introDuration = getIntroDuration(movie, currentEpisode);
+    console.log(`Using intro duration: ${introDuration}s for ${movie?.slug || 'unknown movie'}`);
+
+    // Chuyển đến sau đoạn giới thiệu
+    setCurrentTime(introDuration);
+    setProgress((introDuration / duration) * 100);
     setShowSkipIntro(false);
 
-    // Lưu vị trí mới
-    const watchKey = getWatchKey();
-    if (watchKey) {
-      localStorage.setItem(watchKey, INTRO_DURATION.toString());
+    // Lưu vị trí mới vào localStorage
+    try {
+      localStorage.setItem(`venchill:${videoKey}:time`, introDuration.toString());
+      console.log(`Saved skip position to localStorage: ${introDuration}s`);
+    } catch (e) {
+      console.error('Error saving skip position to localStorage', e);
     }
 
     // Nếu đang phát video, cập nhật vị trí của ReactPlayer
-    if (reactPlayerRef.current) {
-      // Sử dụng seekTo của ReactPlayer
-      reactPlayerRef.current.seekTo(INTRO_DURATION, 'seconds');
-      console.log('Skipped to:', INTRO_DURATION);
-    } else if (playerRef.current) {
-      // Fallback: Tìm ReactPlayer instance
-      const playerInstance = playerRef.current.querySelector('video');
-      if (playerInstance) {
-        playerInstance.currentTime = INTRO_DURATION;
-        console.log('Skipped to (fallback):', INTRO_DURATION);
+    // Sử dụng setTimeout để đảm bảo ReactPlayer đã được khởi tạo đầy đủ
+    setTimeout(() => {
+      if (reactPlayerRef.current && reactPlayerRef.current.seekTo) {
+        // Sử dụng seekTo của ReactPlayer
+        try {
+          // Đặt isPlaying = true trước khi seekTo để đảm bảo video tiếp tục phát
+          setIsPlaying(true);
+          reactPlayerRef.current.seekTo(introDuration, 'seconds');
+          console.log('Skipped to:', introDuration);
+
+          // Hiển thị thông báo đã bỏ qua giới thiệu
+          alert(`Đã bỏ qua giới thiệu và chuyển đến ${formatTime(introDuration)}`);
+        } catch (e) {
+          console.error('Error seeking with ReactPlayer:', e);
+
+          // Fallback: Tìm ReactPlayer instance hoặc video element
+          try {
+            const playerInstance = document.querySelector('video');
+            if (playerInstance) {
+              playerInstance.currentTime = introDuration;
+              console.log('Skipped to (global fallback):', introDuration);
+            }
+          } catch (innerE) {
+            console.error('Error with global fallback seeking:', innerE);
+          }
+        }
+      } else if (playerRef.current) {
+        // Fallback: Tìm ReactPlayer instance hoặc video element
+        try {
+          const playerInstance = playerRef.current.querySelector('video');
+          if (playerInstance) {
+            playerInstance.currentTime = introDuration;
+            console.log('Skipped to (fallback):', introDuration);
+          } else {
+            console.warn('No video element found for fallback seeking');
+
+            // Thử tìm video element trong toàn bộ document
+            const globalVideoElement = document.querySelector('video');
+            if (globalVideoElement) {
+              globalVideoElement.currentTime = introDuration;
+              console.log('Skipped to (global fallback):', introDuration);
+            }
+          }
+        } catch (e) {
+          console.error('Error with fallback seeking:', e);
+        }
+      } else {
+        console.warn('No player reference available for seeking');
+
+        // Thử tìm video element trong toàn bộ document
+        try {
+          const globalVideoElement = document.querySelector('video');
+          if (globalVideoElement) {
+            globalVideoElement.currentTime = introDuration;
+            console.log('Skipped to (last resort fallback):', introDuration);
+          }
+        } catch (e) {
+          console.error('Error with last resort fallback seeking:', e);
+        }
       }
-    }
+    }, 500); // Đợi 500ms để đảm bảo ReactPlayer đã được khởi tạo đầy đủ
   };
 
   // Chuyển đến tập tiếp theo
@@ -116,34 +225,163 @@ export default function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEp
 
   // Lấy trạng thái xem đã lưu
   useEffect(() => {
-    const watchKey = getWatchKey();
-    if (watchKey) {
-      const savedTime = localStorage.getItem(watchKey);
-      if (savedTime) {
-        const parsedTime = parseFloat(savedTime);
-        if (!isNaN(parsedTime) && parsedTime > 0) {
-          setCurrentTime(parsedTime);
-          setProgress((parsedTime / duration) * 100);
-          console.log(`Loaded saved position: ${formatTime(parsedTime)}`);
-        }
+    const savedTime = getSavedState();
+    if (savedTime > 0) {
+      // Nếu đã xem hơn 10 giây, hiển thị thông báo tiếp tục xem
+      if (savedTime > 10 && savedTime < duration - 30) {
+        setShowResumePrompt(true);
+        console.log(`Saved position found: ${formatTime(savedTime)}`);
+      } else {
+        // Nếu thời gian quá ngắn hoặc gần kết thúc, tự động đặt vị trí
+        setCurrentTime(savedTime);
+        setProgress((savedTime / duration) * 100);
+        console.log(`Auto-resumed from: ${formatTime(savedTime)}`);
       }
     }
-  }, [movie?.slug, currentEpisode?.slug]);
+  }, [movie?.slug, currentEpisode?.slug, duration]);
+
+  // Hàm tiếp tục xem từ vị trí đã lưu
+  const resumeFromSavedPosition = () => {
+    console.log('Resuming from saved position...');
+    const savedTime = getSavedState();
+    if (savedTime > 0) {
+      setCurrentTime(savedTime);
+      setProgress((savedTime / duration) * 100);
+      setShowResumePrompt(false);
+      setIsPlaying(true);
+
+      // Nếu đang sử dụng ReactPlayer, cập nhật vị trí
+      setTimeout(() => {
+        if (reactPlayerRef.current && reactPlayerRef.current.seekTo) {
+          try {
+            reactPlayerRef.current.seekTo(savedTime, 'seconds');
+            console.log(`Resumed playback at: ${formatTime(savedTime)}`);
+
+            // Hiển thị thông báo đã tiếp tục xem
+            alert(`Đã tiếp tục xem từ vị trí ${formatTime(savedTime)}`);
+          } catch (e) {
+            console.error('Error seeking with ReactPlayer:', e);
+
+            // Fallback: Tìm video element trong toàn bộ document
+            try {
+              const playerInstance = document.querySelector('video');
+              if (playerInstance) {
+                playerInstance.currentTime = savedTime;
+                console.log('Resumed at (global fallback):', savedTime);
+              }
+            } catch (innerE) {
+              console.error('Error with global fallback seeking:', innerE);
+            }
+          }
+        } else if (playerRef.current) {
+          // Fallback: Tìm ReactPlayer instance hoặc video element
+          try {
+            const playerInstance = playerRef.current.querySelector('video');
+            if (playerInstance) {
+              playerInstance.currentTime = savedTime;
+              console.log('Resumed at (fallback):', savedTime);
+            } else {
+              console.warn('No video element found for fallback seeking');
+
+              // Thử tìm video element trong toàn bộ document
+              const globalVideoElement = document.querySelector('video');
+              if (globalVideoElement) {
+                globalVideoElement.currentTime = savedTime;
+                console.log('Resumed at (global fallback):', savedTime);
+              }
+            }
+          } catch (e) {
+            console.error('Error with fallback seeking:', e);
+          }
+        } else {
+          console.warn('No player reference available for seeking');
+
+          // Thử tìm video element trong toàn bộ document
+          try {
+            const globalVideoElement = document.querySelector('video');
+            if (globalVideoElement) {
+              globalVideoElement.currentTime = savedTime;
+              console.log('Resumed at (last resort fallback):', savedTime);
+            }
+          } catch (e) {
+            console.error('Error with last resort fallback seeking:', e);
+          }
+        }
+      }, 500); // Đợi 500ms để đảm bảo ReactPlayer đã được khởi tạo đầy đủ
+    } else {
+      console.warn('No saved position found');
+      alert('Không tìm thấy vị trí đã lưu. Bắt đầu xem từ đầu.');
+      startFromBeginning();
+    }
+  };
+
+  // Hàm bắt đầu xem từ đầu
+  const startFromBeginning = () => {
+    console.log('Starting from beginning...');
+    setCurrentTime(0);
+    setProgress(0);
+    setShowResumePrompt(false);
+    setIsPlaying(true);
+
+    // Xóa vị trí đã lưu
+    try {
+      localStorage.removeItem(`venchill:${videoKey}:time`);
+      console.log(`Removed saved position for ${videoKey}`);
+    } catch (e) {
+      console.error('Error removing from localStorage', e);
+    }
+
+    // Đặt vị trí của ReactPlayer về 0
+    setTimeout(() => {
+      if (reactPlayerRef.current && reactPlayerRef.current.seekTo) {
+        try {
+          reactPlayerRef.current.seekTo(0, 'seconds');
+          console.log('Set playback position to beginning');
+        } catch (e) {
+          console.error('Error seeking to beginning:', e);
+        }
+      } else {
+        console.warn('ReactPlayer reference not available for seeking to beginning');
+      }
+    }, 1000); // Đợi 1 giây để đảm bảo ReactPlayer đã được khởi tạo
+  };
 
   // Lưu trạng thái xem mỗi 5 giây
   useEffect(() => {
     const saveInterval = setInterval(() => {
       if (isPlaying && currentTime > 0) {
-        const watchKey = getWatchKey();
-        if (watchKey) {
-          localStorage.setItem(watchKey, currentTime.toString());
+        try {
+          // Lưu vị trí hiện tại vào localStorage
+          localStorage.setItem(`venchill:${videoKey}:time`, currentTime.toString());
           console.log(`Saved position: ${formatTime(currentTime)}`);
+
+          // Lưu thêm thông tin về phim và tập đang xem
+          if (movie && currentEpisode) {
+            const historyItem = {
+              movieId: movie.id,
+              movieSlug: movie.slug,
+              movieName: movie.name,
+              episodeId: currentEpisode.id,
+              episodeSlug: currentEpisode.slug,
+              episodeName: currentEpisode.name,
+              poster: movie.poster_url || movie.thumb_url,
+              time: currentTime,
+              duration: duration,
+              progress: (currentTime / duration) * 100,
+              timestamp: new Date().getTime()
+            };
+
+            // Lưu vào lịch sử xem
+            localStorage.setItem(`venchill:history:${videoKey}`, JSON.stringify(historyItem));
+          }
+        } catch (e) {
+          console.error('Error saving to localStorage', e);
         }
       }
     }, 5000);
 
     return () => clearInterval(saveInterval);
-  }, [isPlaying, currentTime, movie?.slug, currentEpisode?.slug]);
+  }, [isPlaying, currentTime, movie, currentEpisode, duration, videoKey]);
 
   // Update progress when playing
   useEffect(() => {
@@ -190,24 +428,37 @@ export default function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEp
 
   // Hiển thị nút bỏ qua giới thiệu khi đến đoạn giới thiệu
   useEffect(() => {
-    console.log('Current Time:', currentTime, 'Is Playing:', isPlaying);
+    // Log mỗi 5 giây để tránh spam console
+    if (Math.floor(currentTime) % 5 === 0) {
+      console.log('Current Time:', formatTime(currentTime), 'Is Playing:', isPlaying);
+    }
 
-    // Hiển thị nút bỏ qua giới thiệu khi thời gian > 10s và < 85s
+    // Lấy thời gian giới thiệu tùy chỉnh theo phim
+    const introDuration = getIntroDuration(movie, currentEpisode);
+
+    // Hiển thị nút bỏ qua giới thiệu khi thời gian > 10s và < (introDuration - 5s)
     // Luôn hiển thị nút bỏ qua giới thiệu trong khoảng thời gian này, bất kể trạng thái phát
-    if (currentTime > 10 && currentTime < INTRO_DURATION - 5) {
-      setShowSkipIntro(true);
-      console.log('Showing Skip Intro button');
-    } else {
+    if (currentTime > 10 && currentTime < introDuration - 5) {
+      if (!showSkipIntro) {
+        setShowSkipIntro(true);
+        console.log(`Showing Skip Intro button at ${formatTime(currentTime)}`);
+      }
+    } else if (showSkipIntro) {
       setShowSkipIntro(false);
+      console.log(`Hiding Skip Intro button at ${formatTime(currentTime)}`);
     }
 
     // Hiển thị nút tập tiếp theo khi gần kết thúc video
     if (nextEpisode && isPlaying && duration > 0 && (duration - currentTime) < NEXT_EPISODE_THRESHOLD) {
-      setShowNextEpisode(true);
-    } else {
+      if (!showNextEpisode) {
+        setShowNextEpisode(true);
+        console.log(`Showing Next Episode button at ${formatTime(currentTime)}`);
+      }
+    } else if (showNextEpisode) {
       setShowNextEpisode(false);
+      console.log(`Hiding Next Episode button at ${formatTime(currentTime)}`);
     }
-  }, [currentTime, isPlaying, duration, nextEpisode]);
+  }, [currentTime, isPlaying, duration, nextEpisode, showSkipIntro, showNextEpisode]);
 
   // Handle progress bar click
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -306,20 +557,52 @@ export default function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEp
           />
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
-              <button
-                onClick={togglePlay}
-                className="w-20 h-20 bg-red-600/80 rounded-full flex items-center justify-center mx-auto mb-4 cursor-pointer hover:bg-red-700 transition-colors"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                </svg>
-              </button>
-              <p className="text-white text-lg font-medium">
-                {movie.name} - Tập {currentEpisode.name}
-              </p>
-              <p className="text-gray-400 text-sm mt-2">
-                Nhấn vào nút play để xem phim
-              </p>
+              {showResumePrompt ? (
+                // Hiển thị thông báo tiếp tục xem
+                <div className="bg-black/70 p-6 rounded-lg backdrop-blur-md max-w-md">
+                  <h3 className="text-white font-bold text-xl mb-2">
+                    Tiếp tục xem?
+                  </h3>
+                  <p className="text-gray-300 mb-4">
+                    Bạn đã xem đến {formatTime(getSavedState())} / {formatTime(duration)}
+                  </p>
+                  <div className="flex gap-4 justify-center">
+                    <button
+                      onClick={startFromBeginning}
+                      className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md"
+                    >
+                      Xem từ đầu
+                    </button>
+                    <button
+                      onClick={resumeFromSavedPosition}
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center gap-2"
+                    >
+                      Tiếp tục xem
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                // Nút play mặc định
+                <>
+                  <button
+                    onClick={togglePlay}
+                    className="w-20 h-20 bg-red-600/80 rounded-full flex items-center justify-center mx-auto mb-4 cursor-pointer hover:bg-red-700 transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                    </svg>
+                  </button>
+                  <p className="text-white text-lg font-medium">
+                    {movie.name} - Tập {currentEpisode.name}
+                  </p>
+                  <p className="text-gray-400 text-sm mt-2">
+                    Nhấn vào nút play để xem phim
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -349,6 +632,9 @@ export default function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEp
                 height="100%"
                 playing={isPlaying}
                 controls={true}
+                progressInterval={500} // Cập nhật tiến trình mỗi 500ms thay vì 1000ms mặc định
+                // Đặt vị trí bắt đầu nếu có vị trí đã lưu
+                playbackRate={1.0}
                 config={{
                   file: {
                     forceHLS: isM3u8,
@@ -375,8 +661,28 @@ export default function MoviePlayer({ currentEpisode, movie, nextEpisode, prevEp
                   },
                 }}
                 onProgress={(state) => {
+                  // Cập nhật trạng thái hiện tại
                   setCurrentTime(state.playedSeconds);
                   setProgress(state.played * 100);
+
+                  // Lưu trạng thái ngay lập tức khi người dùng đã xem được ít nhất 10 giây
+                  if (state.playedSeconds > 10) {
+                    if (!hasStarted) {
+                      setHasStarted(true);
+                      console.log('Started watching, saving initial position');
+                    }
+
+                    // Lưu vị trí hiện tại vào localStorage mỗi khi có tiến triển
+                    try {
+                      localStorage.setItem(`venchill:${videoKey}:time`, state.playedSeconds.toString());
+                      // Không log mỗi lần để tránh spam console
+                      if (Math.floor(state.playedSeconds) % 10 === 0) { // Log mỗi 10 giây
+                        console.log(`Auto-saved position: ${formatTime(state.playedSeconds)}`);
+                      }
+                    } catch (e) {
+                      console.error('Error saving position to localStorage', e);
+                    }
+                  }
                 }}
                 onDuration={(duration) => setDuration(duration)}
                 onPause={() => setIsPlaying(false)}

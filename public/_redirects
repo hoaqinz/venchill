@@ -1,15 +1,4 @@
 # Redirects for Cloudflare Pages
 
-# Xử lý các route động
-/phim/*      /_next/static/index.html   200
-/xem-phim/*  /_next/static/index.html   200
-/the-loai/*  /_next/static/index.html   200
-/quoc-gia/*  /_next/static/index.html   200
-/danh-sach/* /_next/static/index.html   200
-/tim-kiem    /_next/static/index.html   200
-
-# Xử lý các route tĩnh
-/           /index.html                200
-
-# Fallback cho các route khác
-/*          /_next/static/index.html   200
+# SPA fallback
+/*  /index.html  200
