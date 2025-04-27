@@ -273,7 +273,7 @@ export const getHomeData = async () => {
     // Thử lấy dữ liệu từ Cloudflare
     let homeData;
     try {
-      homeData = await fetchFromCacheOrAPI('home_data.json', '/home');
+      homeData = await fetchFromCloudflareOrAPI('home_data.json', () => fetchAPI('/home'));
     } catch (error) {
       console.error("Error fetching home data from Cloudflare:", error);
       homeData = await fetchAPI('/home');
@@ -286,17 +286,17 @@ export const getHomeData = async () => {
       phimLeData1,
       hoatHinhData1
     ] = await Promise.all([
-      fetchFromCacheOrAPI('category_data/phim-moi-cap-nhat_1.json', '/danh-sach/phim-moi-cap-nhat'),
-      fetchFromCacheOrAPI('category_data/phim-bo_1.json', '/danh-sach/phim-bo'),
-      fetchFromCacheOrAPI('category_data/phim-le_1.json', '/danh-sach/phim-le'),
-      fetchFromCacheOrAPI('category_data/hoat-hinh_1.json', '/danh-sach/hoat-hinh')
+      fetchFromCloudflareOrAPI('category_data/phim-moi-cap-nhat_1.json', () => fetchAPI('/danh-sach/phim-moi-cap-nhat')),
+      fetchFromCloudflareOrAPI('category_data/phim-bo_1.json', () => fetchAPI('/danh-sach/phim-bo')),
+      fetchFromCloudflareOrAPI('category_data/phim-le_1.json', () => fetchAPI('/danh-sach/phim-le')),
+      fetchFromCloudflareOrAPI('category_data/hoat-hinh_1.json', () => fetchAPI('/danh-sach/hoat-hinh'))
     ]);
 
     // Lấy dữ liệu thể loại từ Cloudflare
     const [actionMovies, romanceMovies, comedyMovies] = await Promise.all([
-      fetchFromCacheOrAPI('genre_data/hanh-dong.json', '/the-loai/hanh-dong'),
-      fetchFromCacheOrAPI('genre_data/tinh-cam.json', '/the-loai/tinh-cam'),
-      fetchFromCacheOrAPI('genre_data/hai-huoc.json', '/the-loai/hai-huoc')
+      fetchFromCloudflareOrAPI('genre_data/hanh-dong.json', () => fetchAPI('/the-loai/hanh-dong')),
+      fetchFromCloudflareOrAPI('genre_data/tinh-cam.json', () => fetchAPI('/the-loai/tinh-cam')),
+      fetchFromCloudflareOrAPI('genre_data/hai-huoc.json', () => fetchAPI('/the-loai/hai-huoc'))
     ]).catch(() => [null, null, null]);
 
     // Lấy dữ liệu từ API
@@ -404,7 +404,7 @@ export const getHomeData = async () => {
 // Get movie by slug
 export const getMovieBySlug = async (slug: string) => {
   try {
-    return await fetchFromCacheOrAPI(`movie_data/${slug}.json`, `/phim/${slug}`);
+    return await fetchFromCloudflareOrAPI(`movie_data/${slug}.json`, () => fetchAPI(`/phim/${slug}`));
   } catch (error) {
     console.error(`Error fetching movie ${slug}:`, error);
     return await fetchAPI(`/phim/${slug}`);
@@ -415,7 +415,7 @@ export const getMovieBySlug = async (slug: string) => {
 export const getMoviesByCategory = async (category: string, page: number = 1) => {
   try {
     // Sử dụng đúng định dạng URL theo API
-    return await fetchFromCacheOrAPI(`category_data/${category}_${page}.json`, `/danh-sach/${category}?page=${page}`);
+    return await fetchFromCloudflareOrAPI(`category_data/${category}_${page}.json`, () => fetchAPI(`/danh-sach/${category}?page=${page}`));
   } catch (error) {
     console.error(`Error fetching category ${category}:`, error);
     return await fetchAPI(`/danh-sach/${category}?page=${page}`);
@@ -426,7 +426,7 @@ export const getMoviesByCategory = async (category: string, page: number = 1) =>
 export const getMoviesByGenre = async (genre: string, page: number = 1) => {
   try {
     // Sử dụng đúng định dạng URL theo API
-    const response = await fetchFromCacheOrAPI(`genre_data/${genre}.json`, `/the-loai/${genre}`);
+    const response = await fetchFromCloudflareOrAPI(`genre_data/${genre}.json`, () => fetchAPI(`/the-loai/${genre}`));
 
     // Xử lý đặc biệt cho thể loại hoạt hình
     if (genre === 'hoat-hinh') {
