@@ -1,0 +1,18 @@
+name = "venchill-crawler"
+main = "scripts/cloudflare-worker.js"
+compatibility_date = "2023-12-01"
+
+# Cấu hình D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "venchill-db"
+database_id = "3e8dca30-9c6f-44f8-be76-a82a5ceab716"
+
+# Cấu hình R2 Storage
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "venchill-data"
+
+# Cấu hình cron trigger để chạy mỗi giờ
+[triggers]
+crons = ["0 * * * *"] # Chạy mỗi giờ

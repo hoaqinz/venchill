@@ -8,7 +8,9 @@ VenChill là một trang web xem phim trực tuyến được xây dựng bằng
 - Trang chi tiết phim hiển thị thông tin chi tiết về phim và danh sách tập phim
 - Trang xem phim với trình phát video và danh sách tập phim
 - Trang danh sách phim theo thể loại, quốc gia
-- Trang tìm kiếm để tìm kiếm phim
+- Cache dữ liệu với Cloudflare R2 Storage để giảm số lượng request đến API
+- Lưu trữ dữ liệu với Cloudflare D1 Database
+- Crawl dữ liệu định kỳ mỗi giờ bằng Cloudflare Workers
 - Responsive design cho tất cả thiết bị
 
 ## Cài đặt
@@ -77,7 +79,43 @@ yarn dev
 - Next.js 14 với App Router
 - TailwindCSS cho styling
 - API từ OPhim để lấy dữ liệu phim
+- Cloudflare D1 Database để lưu trữ dữ liệu
+- Cloudflare R2 Storage để lưu trữ dữ liệu cache
+- Cloudflare Workers để crawl dữ liệu định kỳ
 - Tối ưu cho Cloudflare Pages
+
+## Thiết lập Cloudflare
+
+1. Đăng ký tài khoản tại [Cloudflare](https://cloudflare.com/)
+2. Thiết lập Cloudflare D1 Database:
+   - Vào Cloudflare Dashboard > Workers & Pages > D1
+   - Tạo database mới với tên "venchill-db"
+   - Sao chép Database ID và cập nhật trong file wrangler.toml
+
+3. Thiết lập Cloudflare R2 Storage:
+   - Vào Cloudflare Dashboard > R2
+   - Tạo bucket mới với tên "venchill-data"
+   - Tạo bucket cho môi trường development với tên "venchill-data-dev"
+
+4. Thiết lập Cloudflare Worker:
+   - Vào Cloudflare Dashboard > Workers & Pages > Create application
+   - Chọn "Create Worker"
+   - Đặt tên là "venchill-crawler"
+   - Triển khai Worker bằng Wrangler CLI:
+   ```bash
+   npx wrangler deploy
+   ```
+
+5. Cấu hình biến môi trường:
+   - Tạo file .env từ .env.example
+   - Cập nhật URL của Worker:
+   ```
+   NEXT_PUBLIC_WORKER_API_URL=https://venchill-crawler.your-subdomain.workers.dev
+   ```
+
+6. Chạy crawler thủ công:
+   - Truy cập URL: https://venchill-crawler.your-subdomain.workers.dev/api/crawl
+   - Worker sẽ tự động chạy mỗi giờ theo cấu hình cron
 
 ## Lưu ý
 
