@@ -5,5 +5,4 @@
 /phim-bo/* /danh-sach/phim-bo 301
 /hoat-hinh/* /danh-sach/hoat-hinh 301
 
-# Handle SPA routing
-/* /index.html 200
+# Không sử dụng redirect cho SPA routing vì có thể gây vòng lặp vô hạn

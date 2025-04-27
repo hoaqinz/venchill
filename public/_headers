@@ -6,13 +6,16 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
 
-  # Tối ưu hóa
-  Cache-Control: public, max-age=3600
+  # Tối ưu hóa - giảm thời gian cache để tránh lỗi
+  Cache-Control: public, max-age=60
 
   # CORS
   Access-Control-Allow-Origin: *
   Access-Control-Allow-Methods: GET, OPTIONS
   Access-Control-Allow-Headers: Content-Type
+
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
 
 # Tối ưu hóa cho tài nguyên tĩnh
 /images/*

@@ -1,5 +1,16 @@
 {
   "version": 1,
   "include": ["/*"],
-  "exclude": []
+  "exclude": [],
+  "routes": [
+    {"src": "^/phim/([^/]+)/?$", "dest": "/phim/$1"},
+    {"src": "^/xem-phim/([^/]+)/([^/]+)/?$", "dest": "/xem-phim/$1/$2"},
+    {"src": "^/danh-sach/([^/]+)/?$", "dest": "/danh-sach/$1"},
+    {"src": "^/danh-sach/([^/]+)/([^/]+)/?$", "dest": "/danh-sach/$1/$2"},
+    {"src": "^/the-loai/([^/]+)/?$", "dest": "/the-loai/$1"},
+    {"src": "^/the-loai/([^/]+)/([^/]+)/?$", "dest": "/the-loai/$1/$2"},
+    {"src": "^/quoc-gia/([^/]+)/?$", "dest": "/quoc-gia/$1"},
+    {"src": "^/quoc-gia/([^/]+)/([^/]+)/?$", "dest": "/quoc-gia/$1/$2"},
+    {"src": "^/((?!_next|api|static|favicon.ico|robots.txt).*)$", "dest": "/index.html"}
+  ]
 }

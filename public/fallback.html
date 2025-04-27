@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VenChill - Đang tải...</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #141414;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      color: #e50914;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      max-width: 600px;
+    }
+    .loader {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #e50914;
+      animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .button {
+      background-color: #e50914;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 2rem;
+      text-decoration: none;
+    }
+    .button:hover {
+      background-color: #f40612;
+    }
+  </style>
+</head>
+<body>
+  <h1>VenChill</h1>
+  <p>Đang tải dữ liệu phim, vui lòng đợi trong giây lát...</p>
+  <div class="loader"></div>
+  <p>Nếu trang không tải sau một thời gian, vui lòng thử tải lại trang.</p>
+  <a href="/" class="button" onclick="window.location.reload(); return false;">Tải lại trang</a>
+
+  <script>
+    // Tự động tải lại trang sau 5 giây
+    setTimeout(function() {
+      window.location.reload();
+    }, 5000);
+  </script>
+</body>
+</html>
