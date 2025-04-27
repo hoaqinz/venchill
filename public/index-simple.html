@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VenChill - Trang chủ đơn giản</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #141414;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      color: #e50914;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      max-width: 600px;
+    }
+    .button {
+      background-color: #e50914;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 10px;
+      text-decoration: none;
+    }
+    .button:hover {
+      background-color: #f40612;
+    }
+    .loader {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #e50914;
+      animation: spin 1s ease-in-out infinite;
+      margin: 20px 0;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+      margin-top: 30px;
+    }
+    .movie-card {
+      background-color: #333;
+      border-radius: 5px;
+      overflow: hidden;
+      transition: transform 0.3s;
+    }
+    .movie-card:hover {
+      transform: scale(1.05);
+    }
+    .movie-poster {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+    }
+    .movie-info {
+      padding: 10px;
+    }
+    .movie-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .movie-year {
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>VenChill</h1>
+  <p>Trang web xem phim miễn phí, chất lượng cao</p>
+  
+  <div class="buttons">
+    <a href="/danh-sach/phim-moi-cap-nhat" class="button">Phim mới cập nhật</a>
+    <a href="/danh-sach/phim-bo" class="button">Phim bộ</a>
+    <a href="/danh-sach/phim-le" class="button">Phim lẻ</a>
+    <a href="/danh-sach/hoat-hinh" class="button">Phim hoạt hình</a>
+  </div>
+  
+  <div id="loading">
+    <div class="loader"></div>
+    <p>Đang tải dữ liệu phim...</p>
+  </div>
+  
+  <div id="movie-container" class="movie-grid" style="display: none;"></div>
+  
+  <script>
+    // Hàm lấy dữ liệu phim từ API
+    async function fetchMovies() {
+      try {
+        const response = await fetch('https://ophim1.com/v1/api/home');
+        const data = await response.json();
+        return data.items;
+      } catch (error) {
+        console.error('Lỗi khi lấy dữ liệu phim:', error);
+        return [];
+      }
+    }
+    
+    // Hàm hiển thị phim
+    function displayMovies(movies) {
+      const container = document.getElementById('movie-container');
+      
+      // Giới hạn số lượng phim hiển thị
+      const moviesToShow = movies.slice(0, 12);
+      
+      moviesToShow.forEach(movie => {
+        const card = document.createElement('div');
+        card.className = 'movie-card';
+        
+        const posterUrl = movie.thumb_url.startsWith('http') 
+          ? movie.thumb_url 
+          : `https://img.ophim.live/uploads/movies/${movie.thumb_url}`;
+        
+        card.innerHTML = `
+          <img src="${posterUrl}" alt="${movie.name}" class="movie-poster" onerror="this.src='/placeholder.jpg'">
+          <div class="movie-info">
+            <div class="movie-title">${movie.name}</div>
+            <div class="movie-year">${movie.year}</div>
+          </div>
+        `;
+        
+        card.addEventListener('click', () => {
+          window.location.href = `/phim/${movie.slug}`;
+        });
+        
+        container.appendChild(card);
+      });
+      
+      // Ẩn loading, hiển thị phim
+      document.getElementById('loading').style.display = 'none';
+      container.style.display = 'grid';
+    }
+    
+    // Khi trang đã tải xong
+    window.addEventListener('DOMContentLoaded', async () => {
+      const movies = await fetchMovies();
+      if (movies.length > 0) {
+        displayMovies(movies);
+      } else {
+        document.getElementById('loading').innerHTML = '<p>Không thể tải dữ liệu phim. Vui lòng thử lại sau.</p>';
+      }
+    });
+  </script>
+</body>
+</html>

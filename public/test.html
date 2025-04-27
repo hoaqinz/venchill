@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VenChill - Trang kiểm tra</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #141414;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      color: #e50914;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      max-width: 600px;
+    }
+    .button {
+      background-color: #e50914;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 2rem;
+      text-decoration: none;
+    }
+    .button:hover {
+      background-color: #f40612;
+    }
+  </style>
+</head>
+<body>
+  <h1>VenChill</h1>
+  <p>Đây là trang kiểm tra. Nếu bạn thấy trang này, có nghĩa là Cloudflare Pages đang hoạt động bình thường.</p>
+  <p>Thời gian hiện tại: <span id="current-time"></span></p>
+  <a href="/" class="button">Quay lại trang chủ</a>
+
+  <script>
+    // Hiển thị thời gian hiện tại
+    function updateTime() {
+      const now = new Date();
+      document.getElementById('current-time').textContent = now.toLocaleString('vi-VN');
+    }
+    
+    updateTime();
+    setInterval(updateTime, 1000);
+  </script>
+</body>
+</html>
