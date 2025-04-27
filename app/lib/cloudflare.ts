@@ -83,10 +83,17 @@ export async function fetchFromCloudflareOrAPI(key: string, fetchAPIFn: () => Pr
     }
   }
 
-  // Thử lấy từ R2 trước
+  // Thử lấy từ Worker API trước (bỏ qua R2 vì có vấn đề với quyền truy cập)
   try {
-    const data = await fetchFromR2(key);
-    console.log(`Using data from R2: ${key}`);
+    // Kiểm tra xem Worker API URL có được cấu hình không
+    if (!process.env.NEXT_PUBLIC_WORKER_API_URL ||
+        process.env.NEXT_PUBLIC_WORKER_API_URL.includes('your-subdomain')) {
+      console.log(`Worker API not configured, using direct API for: ${key}`);
+      return await fetchAPIFn();
+    }
+
+    const data = await fetchFromCloudflare(key);
+    console.log(`Using data from Worker API: ${key}`);
 
     // Lưu vào localStorage cache
     if (typeof window !== 'undefined') {
@@ -103,19 +110,12 @@ export async function fetchFromCloudflareOrAPI(key: string, fetchAPIFn: () => Pr
 
     return data;
   } catch (error) {
-    console.error(`Error fetching from R2, trying Worker API: ${key}`, error);
+    console.error(`Error fetching from Worker API, falling back to direct API: ${key}`, error);
 
-    // Thử lấy từ Worker API
+    // Fallback về API gốc
     try {
-      // Kiểm tra xem Worker API URL có được cấu hình không
-      if (!process.env.NEXT_PUBLIC_WORKER_API_URL ||
-          process.env.NEXT_PUBLIC_WORKER_API_URL.includes('your-subdomain')) {
-        console.log(`Worker API not configured, using direct API for: ${key}`);
-        return await fetchAPIFn();
-      }
-
-      const data = await fetchFromCloudflare(key);
-      console.log(`Using data from Worker API: ${key}`);
+      const data = await fetchAPIFn();
+      console.log(`Using data from direct API: ${key}`);
 
       // Lưu vào localStorage cache
       if (typeof window !== 'undefined') {
@@ -131,31 +131,9 @@ export async function fetchFromCloudflareOrAPI(key: string, fetchAPIFn: () => Pr
       }
 
       return data;
-    } catch (workerError) {
-      console.error(`Error fetching from Worker API, falling back to direct API: ${key}`, workerError);
-
-      // Fallback về API gốc
-      try {
-        const data = await fetchAPIFn();
-
-        // Lưu vào localStorage cache
-        if (typeof window !== 'undefined') {
-          try {
-            const cacheKey = `cloudflare_cache_${key.replace(/[^a-zA-Z0-9]/g, '_')}`;
-            localStorage.setItem(cacheKey, JSON.stringify({
-              data,
-              timestamp: new Date().getTime()
-            }));
-          } catch (e) {
-            console.error('Error writing to localStorage cache:', e);
-          }
-        }
-
-        return data;
-      } catch (apiError) {
-        console.error(`Error fetching from direct API: ${key}`, apiError);
-        throw apiError;
-      }
+    } catch (apiError) {
+      console.error(`Error fetching from direct API: ${key}`, apiError);
+      throw apiError;
     }
   }
 }

@@ -5,5 +5,5 @@
 /phim-bo/* /danh-sach/phim-bo 301
 /hoat-hinh/* /danh-sach/hoat-hinh 301
 
-# Handle 404 errors
-/* /404.html 404
+# Handle SPA routing
+/* /index.html 200
