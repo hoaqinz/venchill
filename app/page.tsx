@@ -8,6 +8,22 @@ async function getData() {
     // Lấy dữ liệu phim từ API đã cập nhật
     const homeData = await getHomeData();
 
+    if (!homeData || !homeData.customSections) {
+      console.error("Invalid home data structure:", homeData);
+      // Trả về dữ liệu mẫu nếu không lấy được dữ liệu từ API
+      return {
+        phimMoiCapNhat: [],
+        phimChieuRap: [],
+        phimBo: [],
+        phimLe: [],
+        phimHoatHinh: [],
+        phimHanhDong: [],
+        phimTinhCam: [],
+        phimHaiHuoc: [],
+        trendingMovies: []
+      };
+    }
+
     // Lấy dữ liệu từ các chuyên mục
     const phimMoiCapNhat = homeData?.customSections?.phimMoiCapNhat?.items || [];
     const phimChieuRap = homeData?.customSections?.phimChieuRap?.items || [];
@@ -54,21 +70,26 @@ async function getData() {
   }
 }
 
-export default async function Home() {
-  const {
-    phimMoiCapNhat,
-    phimChieuRap,
-    phimBo,
-    phimLe,
-    phimHoatHinh,
-    phimHanhDong,
-    phimTinhCam,
-    phimHaiHuoc,
-    trendingMovies
-  } = await getData();
+export const dynamic = 'force-static';
+export const revalidate = 3600; // Revalidate every hour
 
-  // Lấy phim nổi bật cho hero section
-  const heroMovie = trendingMovies[0] || phimMoiCapNhat[0];
+export default async function Home() {
+  // Wrap in try-catch to handle any errors
+  try {
+    const {
+      phimMoiCapNhat,
+      phimChieuRap,
+      phimBo,
+      phimLe,
+      phimHoatHinh,
+      phimHanhDong,
+      phimTinhCam,
+      phimHaiHuoc,
+      trendingMovies
+    } = await getData();
+
+    // Lấy phim nổi bật cho hero section
+    const heroMovie = trendingMovies[0] || phimMoiCapNhat[0];
 
   return (
     <div className="min-h-screen">
@@ -484,4 +505,15 @@ export default async function Home() {
       </div>
     </div>
   );
+  } catch (error) {
+    console.error("Error rendering home page:", error);
+    // Fallback UI in case of error
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <h1 className="text-3xl font-bold text-red-600 mb-4">VenChill</h1>
+        <p className="text-white text-center mb-8">Đang tải dữ liệu phim, vui lòng đợi trong giây lát...</p>
+        <div className="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 }

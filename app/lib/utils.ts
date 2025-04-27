@@ -19,9 +19,17 @@ export function formatEpisode(episode: string): string {
 // Get image URL
 export function getImageUrl(path: string): string {
   if (!path) return "/placeholder.jpg";
+
+  // Si l'URL est déjà une URL R2 Storage, la retourner directement
+  if (path.includes('pub-f0628ac6784b48e5944988d4ea90cd70.r2.dev')) {
+    return path;
+  }
+
+  // Si c'est une URL complète, la retourner
   if (path.startsWith("http")) return path;
 
   try {
+    // Utiliser l'URL d'origine pour les images
     return `https://img.ophim.live/uploads/movies/${path}`;
   } catch (error) {
     console.error("Error generating image URL:", error);
