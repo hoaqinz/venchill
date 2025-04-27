@@ -19,8 +19,8 @@ find .next -type f -size +20M -delete
 # Sao chép các file cần thiết vào thư mục out
 cp -r public/* out/
 
-# Sao chép trang index-simple.html thành index.html trong thư mục out
-cp out/index-simple.html out/index.html
+# Sao chép trang static-index.html thành index.html trong thư mục out
+cp out/static-index.html out/index.html
 
 # Hiển thị thông tin về kích thước file
 echo "Các file lớn nhất:"

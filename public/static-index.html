@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VenChill - Trang chủ tĩnh</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #141414;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      color: #e50914;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      max-width: 600px;
+    }
+    .button {
+      background-color: #e50914;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 10px;
+      text-decoration: none;
+    }
+    .button:hover {
+      background-color: #f40612;
+    }
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+      margin-top: 30px;
+    }
+    .movie-card {
+      background-color: #333;
+      border-radius: 5px;
+      overflow: hidden;
+      transition: transform 0.3s;
+      cursor: pointer;
+    }
+    .movie-card:hover {
+      transform: scale(1.05);
+    }
+    .movie-poster {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+    }
+    .movie-info {
+      padding: 10px;
+    }
+    .movie-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .movie-year {
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .status {
+      background-color: #333;
+      padding: 10px 20px;
+      border-radius: 4px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>VenChill</h1>
+  <p>Trang web xem phim miễn phí, chất lượng cao</p>
+  
+  <div class="buttons">
+    <a href="#" class="button">Phim mới cập nhật</a>
+    <a href="#" class="button">Phim bộ</a>
+    <a href="#" class="button">Phim lẻ</a>
+    <a href="#" class="button">Phim hoạt hình</a>
+  </div>
+  
+  <div class="status">
+    <p>Trang web đang trong quá trình bảo trì. Vui lòng quay lại sau.</p>
+    <p>Thời gian hiện tại: <span id="current-time"></span></p>
+  </div>
+  
+  <div class="movie-grid">
+    <!-- Phim 1 -->
+    <div class="movie-card">
+      <img src="/placeholder.jpg" alt="Người Nhện: Du Hành Vũ Trụ Nhện" class="movie-poster">
+      <div class="movie-info">
+        <div class="movie-title">Người Nhện: Du Hành Vũ Trụ Nhện</div>
+        <div class="movie-year">2023</div>
+      </div>
+    </div>
+    
+    <!-- Phim 2 -->
+    <div class="movie-card">
+      <img src="/placeholder.jpg" alt="Người Nhện: Không Còn Nhà" class="movie-poster">
+      <div class="movie-info">
+        <div class="movie-title">Người Nhện: Không Còn Nhà</div>
+        <div class="movie-year">2021</div>
+      </div>
+    </div>
+    
+    <!-- Phim 3 -->
+    <div class="movie-card">
+      <img src="/placeholder.jpg" alt="Người Nhện: Xa Nhà" class="movie-poster">
+      <div class="movie-info">
+        <div class="movie-title">Người Nhện: Xa Nhà</div>
+        <div class="movie-year">2019</div>
+      </div>
+    </div>
+    
+    <!-- Phim 4 -->
+    <div class="movie-card">
+      <img src="/placeholder.jpg" alt="Venom: Đối Mặt Tử Thù" class="movie-poster">
+      <div class="movie-info">
+        <div class="movie-title">Venom: Đối Mặt Tử Thù</div>
+        <div class="movie-year">2021</div>
+      </div>
+    </div>
+    
+    <!-- Phim 5 -->
+    <div class="movie-card">
+      <img src="/placeholder.jpg" alt="Venom" class="movie-poster">
+      <div class="movie-info">
+        <div class="movie-title">Venom</div>
+        <div class="movie-year">2018</div>
+      </div>
+    </div>
+    
+    <!-- Phim 6 -->
+    <div class="movie-card">
+      <img src="/placeholder.jpg" alt="Morbius" class="movie-poster">
+      <div class="movie-info">
+        <div class="movie-title">Morbius</div>
+        <div class="movie-year">2022</div>
+      </div>
+    </div>
+    
+    <!-- Phim 7 -->
+    <div class="movie-card">
+      <img src="/placeholder.jpg" alt="Deadpool" class="movie-poster">
+      <div class="movie-info">
+        <div class="movie-title">Deadpool</div>
+        <div class="movie-year">2016</div>
+      </div>
+    </div>
+    
+    <!-- Phim 8 -->
+    <div class="movie-card">
+      <img src="/placeholder.jpg" alt="Deadpool 2" class="movie-poster">
+      <div class="movie-info">
+        <div class="movie-title">Deadpool 2</div>
+        <div class="movie-year">2018</div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Hiển thị thời gian hiện tại
+    function updateTime() {
+      const now = new Date();
+      document.getElementById('current-time').textContent = now.toLocaleString('vi-VN');
+    }
+    
+    updateTime();
+    setInterval(updateTime, 1000);
+  </script>
+</body>
+</html>
