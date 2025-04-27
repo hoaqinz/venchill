@@ -14,6 +14,27 @@ const API_URLS = [
 const fetchAPI = async (endpoint: string) => {
   let lastError;
 
+  // Kiểm tra xem endpoint đã được cache chưa
+  const cacheKey = `api_cache_${endpoint.replace(/[^a-zA-Z0-9]/g, '_')}`;
+
+  // Thử lấy từ cache trước (chỉ trong môi trường client)
+  if (typeof window !== 'undefined') {
+    try {
+      const cachedData = sessionStorage.getItem(cacheKey);
+      if (cachedData) {
+        const { data, timestamp } = JSON.parse(cachedData);
+        const now = new Date().getTime();
+        // Cache có hiệu lực trong 1 giờ
+        if (now - timestamp < 3600000) {
+          console.log(`Using session cache for: ${endpoint}`);
+          return data;
+        }
+      }
+    } catch (e) {
+      console.error('Error reading from session cache:', e);
+    }
+  }
+
   // Thử từng API URL cho đến khi thành công
   for (const baseUrl of API_URLS) {
     try {
@@ -24,7 +45,7 @@ const fetchAPI = async (endpoint: string) => {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        cache: 'no-store', // Không cache để luôn lấy dữ liệu mới nhất
+        cache: 'force-cache', // Sử dụng cache để giảm số lượng requests
       });
 
       if (!response.ok) {
@@ -33,6 +54,19 @@ const fetchAPI = async (endpoint: string) => {
 
       const data = await response.json();
       console.log(`API response success from ${baseUrl}${endpoint}`);
+
+      // Lưu vào cache (chỉ trong môi trường client)
+      if (typeof window !== 'undefined') {
+        try {
+          sessionStorage.setItem(cacheKey, JSON.stringify({
+            data,
+            timestamp: new Date().getTime()
+          }));
+        } catch (e) {
+          console.error('Error writing to session cache:', e);
+        }
+      }
+
       return data;
     } catch (error) {
       console.error(`Error fetching from ${baseUrl}${endpoint}:`, error);
@@ -236,67 +270,53 @@ const isAnimeMovie = (movie: any): boolean => {
 // Home page data
 export const getHomeData = async () => {
   try {
-    // Thử lấy dữ liệu từ Cloudflare trước
-    let homeData;
-    try {
-      homeData = await fetchFromCacheOrAPI('home_data.json', '/home');
-    } catch (error) {
-      console.error("Error fetching home data from Cloudflare:", error);
-      homeData = await fetchAPI('/home');
+    // Kiểm tra xem dữ liệu đã được cache chưa (chỉ trong môi trường client)
+    const cacheKey = 'home_data_cache';
+    if (typeof window !== 'undefined') {
+      try {
+        const cachedData = localStorage.getItem(cacheKey);
+        if (cachedData) {
+          const { data, timestamp } = JSON.parse(cachedData);
+          const now = new Date().getTime();
+          // Cache có hiệu lực trong 1 giờ
+          if (now - timestamp < 3600000) {
+            console.log('Using cached home data');
+            return data;
+          }
+        }
+      } catch (e) {
+        console.error('Error reading from cache:', e);
+      }
     }
 
-    // Lấy dữ liệu cho các chuyên mục từ Cloudflare hoặc API
+    // Thử lấy dữ liệu từ API trực tiếp
+    let homeData = await fetchAPI('/home');
+
+    // Lấy dữ liệu cho các chuyên mục từ API
     const [
-      phimMoiCapNhatData1, phimMoiCapNhatData2, phimMoiCapNhatData3,
-      phimBoData1, phimBoData2, phimBoData3,
-      phimLeData1, phimLeData2, phimLeData3,
-      hoatHinhData1, hoatHinhData2, hoatHinhData3
+      phimMoiCapNhatData1,
+      phimBoData1,
+      phimLeData1,
+      hoatHinhData1
     ] = await Promise.all([
-      fetchFromCacheOrAPI('category_data/phim-moi-cap-nhat_1.json', '/danh-sach/phim-moi-cap-nhat'),
-      fetchFromCacheOrAPI('category_data/phim-moi-cap-nhat_2.json', '/danh-sach/phim-moi-cap-nhat?page=2'),
-      fetchFromCacheOrAPI('category_data/phim-moi-cap-nhat_3.json', '/danh-sach/phim-moi-cap-nhat?page=3'),
-      fetchFromCacheOrAPI('category_data/phim-bo_1.json', '/danh-sach/phim-bo'),
-      fetchFromCacheOrAPI('category_data/phim-bo_2.json', '/danh-sach/phim-bo?page=2'),
-      fetchFromCacheOrAPI('category_data/phim-bo_3.json', '/danh-sach/phim-bo?page=3'),
-      fetchFromCacheOrAPI('category_data/phim-le_1.json', '/danh-sach/phim-le'),
-      fetchFromCacheOrAPI('category_data/phim-le_2.json', '/danh-sach/phim-le?page=2'),
-      fetchFromCacheOrAPI('category_data/phim-le_3.json', '/danh-sach/phim-le?page=3'),
-      fetchFromCacheOrAPI('category_data/hoat-hinh_1.json', '/danh-sach/hoat-hinh'),
-      fetchFromCacheOrAPI('category_data/hoat-hinh_2.json', '/danh-sach/hoat-hinh?page=2'),
-      fetchFromCacheOrAPI('category_data/hoat-hinh_3.json', '/danh-sach/hoat-hinh?page=3')
+      fetchAPI('/danh-sach/phim-moi-cap-nhat'),
+      fetchAPI('/danh-sach/phim-bo'),
+      fetchAPI('/danh-sach/phim-le'),
+      fetchAPI('/danh-sach/hoat-hinh')
     ]);
 
-    // Lấy dữ liệu thể loại từ Cloudflare hoặc API
+    // Lấy dữ liệu thể loại từ API
     const [actionMovies, romanceMovies, comedyMovies] = await Promise.all([
-      fetchFromCacheOrAPI('genre_data/hanh-dong.json', '/the-loai/hanh-dong'),
-      fetchFromCacheOrAPI('genre_data/tinh-cam.json', '/the-loai/tinh-cam'),
-      fetchFromCacheOrAPI('genre_data/hai-huoc.json', '/the-loai/hai-huoc')
+      fetchAPI('/the-loai/hanh-dong'),
+      fetchAPI('/the-loai/tinh-cam'),
+      fetchAPI('/the-loai/hai-huoc')
     ]).catch(() => [null, null, null]);
 
-    // Kết hợp dữ liệu từ nhiều trang
-    const phimMoiCapNhatItems = [
-      ...(phimMoiCapNhatData1?.data?.items || []),
-      ...(phimMoiCapNhatData2?.data?.items || []),
-      ...(phimMoiCapNhatData3?.data?.items || [])
-    ];
-
-    const phimBoItems = [
-      ...(phimBoData1?.data?.items || []),
-      ...(phimBoData2?.data?.items || []),
-      ...(phimBoData3?.data?.items || [])
-    ].filter((movie: any) => movie.type === 'series');
-
-    const phimLeItems = [
-      ...(phimLeData1?.data?.items || []),
-      ...(phimLeData2?.data?.items || []),
-      ...(phimLeData3?.data?.items || [])
-    ].filter((movie: any) => movie.type === 'single');
-
-    const hoatHinhItems = [
-      ...(hoatHinhData1?.data?.items || []),
-      ...(hoatHinhData2?.data?.items || []),
-      ...(hoatHinhData3?.data?.items || [])
-    ];
+    // Lấy dữ liệu từ API
+    const phimMoiCapNhatItems = phimMoiCapNhatData1?.data?.items || [];
+    const phimBoItems = (phimBoData1?.data?.items || []).filter((movie: any) => movie.type === 'series');
+    const phimLeItems = (phimLeData1?.data?.items || []).filter((movie: any) => movie.type === 'single');
+    const hoatHinhItems = hoatHinhData1?.data?.items || [];
 
     // Lọc phim theo thể loại
     const phimMoiCapNhat = {
@@ -359,7 +379,7 @@ export const getHomeData = async () => {
     };
 
     // Kết hợp dữ liệu
-    return {
+    const result = {
       ...homeData,
       customSections: {
         phimMoiCapNhat,
@@ -373,6 +393,21 @@ export const getHomeData = async () => {
         phimHaiHuoc: comedyMovies?.data || { items: [] }
       }
     };
+
+    // Lưu kết quả vào cache (chỉ trong môi trường client)
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(cacheKey, JSON.stringify({
+          data: result,
+          timestamp: new Date().getTime()
+        }));
+        console.log('Home data cached successfully');
+      } catch (e) {
+        console.error('Error writing to cache:', e);
+      }
+    }
+
+    return result;
   } catch (error) {
     console.error("Error fetching home data:", error);
     return {
@@ -421,42 +456,45 @@ export const getMoviesByGenre = async (genre: string, page: number = 1) => {
 
     // Xử lý đặc biệt cho thể loại hoạt hình
     if (genre === 'hoat-hinh') {
-      // Lấy thêm dữ liệu từ danh sách phim (nhiều trang)
+      // Kiểm tra cache
+      const cacheKey = 'hoat_hinh_data_cache';
+      if (typeof window !== 'undefined') {
+        try {
+          const cachedData = localStorage.getItem(cacheKey);
+          if (cachedData) {
+            const { data, timestamp } = JSON.parse(cachedData);
+            const now = new Date().getTime();
+            // Cache có hiệu lực trong 1 giờ
+            if (now - timestamp < 3600000) {
+              console.log('Using cached hoat hinh data');
+              return data;
+            }
+          }
+        } catch (e) {
+          console.error('Error reading from cache:', e);
+        }
+      }
+
+      // Lấy thêm dữ liệu từ danh sách phim (chỉ lấy trang đầu tiên để giảm số lượng requests)
       const [
-        hoatHinh1, hoatHinh2, hoatHinh3,
-        phimMoiCapNhat1, phimMoiCapNhat2, phimMoiCapNhat3,
-        phimBo1, phimBo2, phimBo3,
-        phimLe1, phimLe2, phimLe3
+        hoatHinh1,
+        phimMoiCapNhat1,
+        phimBo1,
+        phimLe1
       ] = await Promise.all([
         fetchAPI('/danh-sach/hoat-hinh'),
-        fetchAPI('/danh-sach/hoat-hinh?page=2'),
-        fetchAPI('/danh-sach/hoat-hinh?page=3'),
         fetchAPI('/danh-sach/phim-moi-cap-nhat'),
-        fetchAPI('/danh-sach/phim-moi-cap-nhat?page=2'),
-        fetchAPI('/danh-sach/phim-moi-cap-nhat?page=3'),
         fetchAPI('/danh-sach/phim-bo'),
-        fetchAPI('/danh-sach/phim-bo?page=2'),
-        fetchAPI('/danh-sach/phim-bo?page=3'),
-        fetchAPI('/danh-sach/phim-le'),
-        fetchAPI('/danh-sach/phim-le?page=2'),
-        fetchAPI('/danh-sach/phim-le?page=3')
-      ]).catch(() => [null, null, null, null, null, null, null, null, null, null, null, null]);
+        fetchAPI('/danh-sach/phim-le')
+      ]).catch(() => [null, null, null, null]);
 
       // Kết hợp tất cả các phim
       const allMovies = [
         ...(response?.data?.items || []),
         ...(hoatHinh1?.data?.items || []),
-        ...(hoatHinh2?.data?.items || []),
-        ...(hoatHinh3?.data?.items || []),
         ...(phimMoiCapNhat1?.data?.items || []),
-        ...(phimMoiCapNhat2?.data?.items || []),
-        ...(phimMoiCapNhat3?.data?.items || []),
         ...(phimBo1?.data?.items || []),
-        ...(phimBo2?.data?.items || []),
-        ...(phimBo3?.data?.items || []),
-        ...(phimLe1?.data?.items || []),
-        ...(phimLe2?.data?.items || []),
-        ...(phimLe3?.data?.items || [])
+        ...(phimLe1?.data?.items || [])
       ];
 
       // Lọc phim hoạt hình
@@ -468,7 +506,7 @@ export const getMoviesByGenre = async (genre: string, page: number = 1) => {
       )).values());
 
       // Cập nhật danh sách phim
-      return {
+      const result = {
         ...response,
         data: {
           ...response.data,
@@ -483,6 +521,21 @@ export const getMoviesByGenre = async (genre: string, page: number = 1) => {
           }
         }
       };
+
+      // Lưu kết quả vào cache (chỉ trong môi trường client)
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(cacheKey, JSON.stringify({
+            data: result,
+            timestamp: new Date().getTime()
+          }));
+          console.log('Hoat hinh data cached successfully');
+        } catch (e) {
+          console.error('Error writing to cache:', e);
+        }
+      }
+
+      return result;
     }
 
     // Xử lý cho các thể loại khác
