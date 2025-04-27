@@ -564,7 +564,7 @@ export const getMoviesByGenre = async (genre: string, page: number = 1) => {
 export const getMoviesByCountry = async (country: string, page: number = 1) => {
   try {
     // Sử dụng đúng định dạng URL theo API
-    const response = await fetchFromCacheOrAPI(`country_data/${country}.json`, `/quoc-gia/${country}`);
+    const response = await fetchFromCloudflareOrAPI(`country_data/${country}.json`, () => fetchAPI(`/quoc-gia/${country}`));
 
     // Lọc phim theo quốc gia
     if (response && response.data && response.data.items) {
@@ -620,7 +620,7 @@ export const getMoviesByCountry = async (country: string, page: number = 1) => {
 export const getCategories = async () => {
   try {
     // Lấy danh sách thể loại từ Cloudflare hoặc API
-    const response = await fetchFromCacheOrAPI('categories.json', '/the-loai');
+    const response = await fetchFromCloudflareOrAPI('categories.json', () => fetchAPI('/the-loai'));
     return response;
   } catch (error) {
     console.error("Error fetching categories:", error);
@@ -656,7 +656,7 @@ export const getCategories = async () => {
   }
 };
 
-// Fetch data from Cloudflare with fallback to API
+// Fetch data from Cloudflare with fallback to API (Helper function)
 export const fetchFromCacheOrAPI = async (key: string, endpoint: string) => {
   return await fetchFromCloudflareOrAPI(key, () => fetchAPI(endpoint));
 };
@@ -664,7 +664,7 @@ export const fetchFromCacheOrAPI = async (key: string, endpoint: string) => {
 // Get all countries
 export const getCountries = async () => {
   try {
-    return await fetchFromCacheOrAPI('countries.json', '/quoc-gia');
+    return await fetchFromCloudflareOrAPI('countries.json', () => fetchAPI('/quoc-gia'));
   } catch (error) {
     console.error("Error fetching countries:", error);
     return await fetchAPI('/quoc-gia');

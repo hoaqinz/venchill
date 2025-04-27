@@ -1,6 +1,9 @@
-name = "venchill-crawler"
-main = "scripts/cloudflare-worker.js"
+# Cấu hình cho Cloudflare Pages
+name = "venchill"
 compatibility_date = "2023-12-01"
+
+# Thư mục output cho Pages
+pages_build_output_dir = "out"
 
 # Cấu hình D1 Database
 [[d1_databases]]

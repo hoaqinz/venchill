@@ -19,8 +19,16 @@ const nextConfig = {
     trailingSlash: true,
   } : {}),
 
-  // Tăng thời gian build để tránh timeout
+  // Cấu hình revalidate cho ISR
   staticPageGenerationTimeout: 300, // 5 phút
+
+  // Cấu hình cache
+  onDemandEntries: {
+    // Thời gian giữ trang trong bộ nhớ cache (ms)
+    maxInactiveAge: 60 * 60 * 1000, // 1 giờ
+    // Số lượng trang tối đa trong bộ nhớ cache
+    pagesBufferLength: 5,
+  },
 
   // Cấu hình images
 
