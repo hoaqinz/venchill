@@ -270,46 +270,33 @@ const isAnimeMovie = (movie: any): boolean => {
 // Home page data
 export const getHomeData = async () => {
   try {
-    // Kiểm tra xem dữ liệu đã được cache chưa (chỉ trong môi trường client)
-    const cacheKey = 'home_data_cache';
-    if (typeof window !== 'undefined') {
-      try {
-        const cachedData = localStorage.getItem(cacheKey);
-        if (cachedData) {
-          const { data, timestamp } = JSON.parse(cachedData);
-          const now = new Date().getTime();
-          // Cache có hiệu lực trong 1 giờ
-          if (now - timestamp < 3600000) {
-            console.log('Using cached home data');
-            return data;
-          }
-        }
-      } catch (e) {
-        console.error('Error reading from cache:', e);
-      }
+    // Thử lấy dữ liệu từ Cloudflare
+    let homeData;
+    try {
+      homeData = await fetchFromCacheOrAPI('home_data.json', '/home');
+    } catch (error) {
+      console.error("Error fetching home data from Cloudflare:", error);
+      homeData = await fetchAPI('/home');
     }
 
-    // Thử lấy dữ liệu từ API trực tiếp
-    let homeData = await fetchAPI('/home');
-
-    // Lấy dữ liệu cho các chuyên mục từ API
+    // Lấy dữ liệu cho các chuyên mục từ Cloudflare
     const [
       phimMoiCapNhatData1,
       phimBoData1,
       phimLeData1,
       hoatHinhData1
     ] = await Promise.all([
-      fetchAPI('/danh-sach/phim-moi-cap-nhat'),
-      fetchAPI('/danh-sach/phim-bo'),
-      fetchAPI('/danh-sach/phim-le'),
-      fetchAPI('/danh-sach/hoat-hinh')
+      fetchFromCacheOrAPI('category_data/phim-moi-cap-nhat_1.json', '/danh-sach/phim-moi-cap-nhat'),
+      fetchFromCacheOrAPI('category_data/phim-bo_1.json', '/danh-sach/phim-bo'),
+      fetchFromCacheOrAPI('category_data/phim-le_1.json', '/danh-sach/phim-le'),
+      fetchFromCacheOrAPI('category_data/hoat-hinh_1.json', '/danh-sach/hoat-hinh')
     ]);
 
-    // Lấy dữ liệu thể loại từ API
+    // Lấy dữ liệu thể loại từ Cloudflare
     const [actionMovies, romanceMovies, comedyMovies] = await Promise.all([
-      fetchAPI('/the-loai/hanh-dong'),
-      fetchAPI('/the-loai/tinh-cam'),
-      fetchAPI('/the-loai/hai-huoc')
+      fetchFromCacheOrAPI('genre_data/hanh-dong.json', '/the-loai/hanh-dong'),
+      fetchFromCacheOrAPI('genre_data/tinh-cam.json', '/the-loai/tinh-cam'),
+      fetchFromCacheOrAPI('genre_data/hai-huoc.json', '/the-loai/hai-huoc')
     ]).catch(() => [null, null, null]);
 
     // Lấy dữ liệu từ API
@@ -393,19 +380,6 @@ export const getHomeData = async () => {
         phimHaiHuoc: comedyMovies?.data || { items: [] }
       }
     };
-
-    // Lưu kết quả vào cache (chỉ trong môi trường client)
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.setItem(cacheKey, JSON.stringify({
-          data: result,
-          timestamp: new Date().getTime()
-        }));
-        console.log('Home data cached successfully');
-      } catch (e) {
-        console.error('Error writing to cache:', e);
-      }
-    }
 
     return result;
   } catch (error) {
