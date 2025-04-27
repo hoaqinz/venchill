@@ -570,10 +570,7 @@ export const getMoviesByCountry = async (country: string, page: number = 1) => {
   }
 };
 
-// Search movies
-export const searchMovies = async (keyword: string, page: number = 1) => {
-  return await fetchAPI(`/tim-kiem?keyword=${encodeURIComponent(keyword)}&page=${page}`);
-};
+
 
 // Get all categories
 export const getCategories = async () => {

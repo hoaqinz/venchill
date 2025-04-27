@@ -478,10 +478,7 @@ export default async function Home() {
               <p className="text-sm mt-2 text-gray-200">Phim theo quốc gia</p>
             </Link>
 
-            <Link href="/tim-kiem" className="bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white p-6 rounded-lg text-center transition-all duration-300 transform hover:scale-105">
-              <h3 className="text-xl font-bold">Tìm Kiếm</h3>
-              <p className="text-sm mt-2 text-gray-200">Tìm kiếm phim yêu thích</p>
-            </Link>
+
           </div>
         </div>
       </div>

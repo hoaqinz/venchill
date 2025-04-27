@@ -54,18 +54,7 @@ export default function RootLayout({
               <a href="/quoc-gia" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Quốc gia</a>
             </nav>
 
-            {/* Search */}
-            <div className="flex-1 max-w-xs ml-auto">
-              <a
-                href="/tim-kiem"
-                className="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 transition-colors rounded-full px-4 py-2 text-sm text-gray-300 border border-gray-700 hover:border-gray-600"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                Tìm kiếm phim...
-              </a>
-            </div>
+
 
             {/* Mobile Menu Button */}
             <button className="md:hidden text-gray-300 hover:text-white">

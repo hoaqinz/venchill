@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { FiSearch, FiMenu, FiX } from "react-icons/fi";
+import { usePathname } from "next/navigation";
+import { FiMenu, FiX } from "react-icons/fi";
 
 const MENU_ITEMS = [
   { name: "Trang chủ", href: "/" },
@@ -17,21 +17,7 @@ const MENU_ITEMS = [
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const router = useRouter();
   const pathname = usePathname();
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/tim-kiem?keyword=${encodeURIComponent(searchQuery)}`);
-      setSearchQuery("");
-      // Đóng menu mobile nếu đang mở
-      if (isMenuOpen) {
-        setIsMenuOpen(false);
-      }
-    }
-  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -61,24 +47,7 @@ export function Header() {
             ))}
           </nav>
 
-          {/* Search */}
-          <div className="hidden md:flex">
-            <form onSubmit={handleSearch} className="relative">
-              <input
-                type="text"
-                placeholder="Tìm kiếm phim..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-gray-900 text-white rounded-full pl-4 pr-10 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-red-500 w-64"
-              />
-              <button
-                type="submit"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500"
-              >
-                <FiSearch />
-              </button>
-            </form>
-          </div>
+
 
           {/* Mobile Menu Button */}
           <button
@@ -92,21 +61,7 @@ export function Header() {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-800">
-            <form onSubmit={handleSearch} className="mb-4 relative">
-              <input
-                type="text"
-                placeholder="Tìm kiếm phim..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-gray-900 text-white rounded-full pl-4 pr-10 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-red-500 w-full"
-              />
-              <button
-                type="submit"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500"
-              >
-                <FiSearch />
-              </button>
-            </form>
+
             <nav className="flex flex-col space-y-4">
               {MENU_ITEMS.map((item) => (
                 <Link
