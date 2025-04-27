@@ -1,8 +1,0 @@
-# Redirects for Cloudflare Pages
-
-# Redirect for old paths
-/phim-le/* /danh-sach/phim-le 301
-/phim-bo/* /danh-sach/phim-bo 301
-/hoat-hinh/* /danh-sach/hoat-hinh 301
-
-# Không sử dụng redirect cho SPA routing vì có thể gây vòng lặp vô hạn

@@ -7,15 +7,12 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=()
 
   # Tối ưu hóa - giảm thời gian cache để tránh lỗi
-  Cache-Control: public, max-age=60
+  Cache-Control: no-cache
 
   # CORS
   Access-Control-Allow-Origin: *
   Access-Control-Allow-Methods: GET, OPTIONS
   Access-Control-Allow-Headers: Content-Type
-
-/index.html
-  Cache-Control: public, max-age=0, must-revalidate
 
 # Tối ưu hóa cho tài nguyên tĩnh
 /images/*

@@ -12,12 +12,10 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
-  // Sử dụng output: 'export' cho Cloudflare Pages chỉ trong môi trường production
-  ...(process.env.NODE_ENV === 'production' ? {
-    output: 'export',
-    distDir: 'out',
-    trailingSlash: true,
-  } : {}),
+  // Cấu hình cho Cloudflare Pages
+  output: 'export',
+  distDir: 'out',
+  trailingSlash: true,
 
   // Cấu hình revalidate cho ISR
   staticPageGenerationTimeout: 300, // 5 phút
