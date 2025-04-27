@@ -1,9 +1,7 @@
-# Cấu hình cho Cloudflare Pages
-name = "venchill"
+# Cấu hình cho Cloudflare Worker
+name = "venchill-crawler"
+main = "cloudflare-worker.js"
 compatibility_date = "2023-12-01"
-
-# Thư mục output cho Pages
-pages_build_output_dir = "out"
 
 # Cấu hình D1 Database
 [[d1_databases]]
@@ -15,3 +13,7 @@ database_id = "3e8dca30-9c6f-44f8-be76-a82a5ceab716"
 [[r2_buckets]]
 binding = "BUCKET"
 bucket_name = "venchill-data"
+
+# Cấu hình cron trigger để chạy mỗi giờ
+[triggers]
+crons = ["0 * * * *"] # Chạy mỗi giờ
